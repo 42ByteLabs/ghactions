@@ -1,12 +1,40 @@
-
+/// GHAction automation to make your life easier when writing Rust
+/// GitHub Actions.
+///
+/// ```
+/// let action = GHAction::new();
+/// 
+/// if action.in_action() {
+///     // Name of your the Action
+///     let action_name = action.name.unwrap()
+///
+///     println!(action_name)
+///
+///     // github.com or Enterprise Server
+///     let api_url = action.get("api_url")
+///         .unwrap();
+///
+///     // Get Actions Input
+///     let username = action.get_input("username")
+///         .unwrap();
+///
+/// }
+///```
+///
+/// Note: Do not use `.unwrap()` in production Actions
+///
+///
+///
+///
 use std::path::Path;
 use dotenv::dotenv;
+use hubcaps::{Github, Credentials};
 use std::{env, collections::HashMap};
 use log::{info, debug, warn};
 
 use crate::models::ActionYML;
 
-
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn load_environment_variables(prefix: &str) -> HashMap<String, String> {
     let mut list = HashMap::<String, String>::new();
@@ -29,6 +57,8 @@ pub struct GHAction {
     // `action.yml` path
     pub action_file_path: String, 
 
+    pub client: Option<Github>,
+
     pub name: Option<String>,
     pub description: Option<String>,
 
@@ -41,20 +71,37 @@ pub struct GHAction {
     pub loaded: bool,
 }
 
+impl Default for GHAction {
+    fn default() -> Self {
+        GHAction::new()
+    }
+}
+
 impl GHAction {
     pub fn new() -> Self {
         debug!("Loading dotenv...");
         dotenv().ok();
 
         let action_path: String = env::var("GITHUB_ACTION_PATH").unwrap_or_else(|_| "./".to_string());
-        
+        let github = load_environment_variables("GITHUB");
+
+        // Hubcap magic
+        let github_token: String = github.get("token")
+            .expect("GitHub Token is not set").to_string();
+        let creds = Credentials::Token(github_token);
+        let github_client = Github::new(
+            format!("gh_actions/{}", VERSION),
+            creds
+        ).ok();
+
         GHAction {
             path: action_path,
             action_file_path: "action.yml".to_string(),
+            client: github_client,
             name: None,
             description: None,
             inputs: load_environment_variables("INPUT"),
-            github: load_environment_variables("GITHUB"),
+            github,
             runner: load_environment_variables("RUNNER"),
             loaded: false
         }
