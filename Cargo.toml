@@ -1,6 +1,6 @@
 [package]
 name = "gh_actions"
-version = "0.0.2"
+version = "0.0.3"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
 
@@ -8,6 +8,7 @@ homepage = "https://github.com/GeekMasher/gh_actions"
 repository = "https://github.com/GeekMasher/gh_actions"
 documentation = "https://github.com/GeekMasher/gh_actions"
 authors = ["GeekMasher"]
+license = "MIT"
 license-file = "LICENSE"
 
 edition = "2021"
