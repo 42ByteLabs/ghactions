@@ -18,28 +18,28 @@ gh_actions = "0.0.2"
 use gh_actions::GHAction;
 
 fn main() {
-let action = GHAction::new();
+    let action = GHAction::new();
 
-if action.in_action() {
-    // Name of your the Action
-    let action_name = action.name.unwrap()
+    if action.in_action() {
+        // Name of your the Action
+        let action_name = action.name.unwrap();
 
-    println!(action_name)
+        println!(action_name);
 
-    // github.com or Enterprise Server
-    let api_url = action.get("api_url")
-        .unwrap();
+        // github.com or Enterprise Server
+        let api_url = action.get("api_url")
+            .unwrap();
 
-    // Get Actions Input
-    let username = action.get_input("username")
-        .unwrap();
+        // Get Actions Input
+        let username = action.get_input("username")
+            .unwrap();
 
-    // Using the Hubcaps client
-    let client = action.client
-        .unwrap();
+        // Using the Hubcaps client
+        let client = action.client
+            .unwrap();
 
-    let repo = client.repo("GeekMasher", "gh_actions");
-
+        let repo = client.repo("GeekMasher", "gh_actions");
+    }
 }
 ```
 
