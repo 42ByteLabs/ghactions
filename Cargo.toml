@@ -1,0 +1,29 @@
+[package]
+name = "gh_actions"
+version = "0.0.1"
+description = "GitHub Actions Crate"
+keywords = ["github", "actions"]
+
+homepage = "https://github.com/GeekMasher/gh_actions"
+repository = "https://github.com/GeekMasher/gh_actions"
+documentation = "https://github.com/GeekMasher/gh_actions"
+authors = ["GeekMasher"]
+license-file = "LICENSE"
+
+edition = "2021"
+rust-version = "1.56"
+
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+
+[dependencies]
+dotenv = "0.15.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9.2"
+
+log = "0.4.17"
+env_logger = "0.9.0"
+
