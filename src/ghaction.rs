@@ -125,8 +125,8 @@ impl GHAction {
         action_file_path
     }
 
-    fn encode_envvar(prefix: &str, key: &String) -> String {
-        let new_key: String = key.clone().replace('-', "_").to_uppercase();
+    fn encode_envvar(prefix: &str, key: &str) -> String {
+        let new_key: String = key.to_owned().replace('-', "_").to_uppercase();
         format!("{}_{}", prefix, &new_key)
     }
     

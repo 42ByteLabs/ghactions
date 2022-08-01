@@ -3,7 +3,7 @@
 mod models;
 mod ghaction;
 
-use crate::ghaction::GHAction;
+use ghaction::GHAction;
 
 
 pub fn init() -> GHAction {
