@@ -1,6 +1,6 @@
 [package]
-name = "gh_actions"
-version = "0.0.4"
+name = "ghactions"
+version = "0.1.0"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
 
@@ -9,7 +9,6 @@ repository = "https://github.com/GeekMasher/gh_actions"
 documentation = "https://github.com/GeekMasher/gh_actions"
 authors = ["GeekMasher"]
 license = "MIT"
-license-file = "LICENSE"
 
 edition = "2021"
 rust-version = "1.56"
@@ -17,8 +16,6 @@ rust-version = "1.56"
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-
 
 [dependencies]
 dotenv = "0.15.0"

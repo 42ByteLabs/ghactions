@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
-mod models;
-mod ghaction;
+pub mod models;
+pub mod ghaction;
 
-use ghaction::GHAction;
+pub use ghaction::GHAction;
 
 
 pub fn init() -> GHAction {
@@ -13,4 +13,5 @@ pub fn init() -> GHAction {
 
 #[cfg(test)]
 mod tests {
+
 }

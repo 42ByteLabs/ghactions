@@ -2,13 +2,15 @@
 /// GitHub Actions.
 ///
 /// ```
+/// use ghactions::GHAction;
+///
 /// let action = GHAction::new();
 /// 
 /// if action.in_action() {
 ///     // Name of your the Action
-///     let action_name = action.name.unwrap()
+///     let action_name = action.name.unwrap();
 ///
-///     println!(action_name)
+///     println!("{}", action_name);
 ///
 ///     // github.com or Enterprise Server
 ///     let api_url = action.get("api_url")

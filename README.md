@@ -8,14 +8,14 @@ This is a Rust GitHub Actions library which should help those of us that write G
 
 ```toml
 [dependencies]
-gh_actions = "0.0.2"
+ghactions = "0.1.0"
 ```
 
 
 ## Usage
 
 ```rust
-use gh_actions::GHAction;
+use ghactions::GHAction;
 
 fn main() {
     let action = GHAction::new();
