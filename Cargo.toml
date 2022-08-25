@@ -1,6 +1,6 @@
 [package]
 name = "ghactions"
-version = "0.2.0"
+version = "0.2.1"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
 
