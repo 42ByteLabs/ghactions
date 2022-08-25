@@ -6,7 +6,7 @@ keywords = ["github", "actions"]
 
 homepage = "https://github.com/GeekMasher/ghactions"
 repository = "https://github.com/GeekMasher/ghactions"
-documentation = "https://github.com/GeekMasher/ghactions"
+documentation = "https://docs.rs/ghactions/latest/ghactions/index.html"
 authors = ["GeekMasher"]
 license = "MIT"
 
