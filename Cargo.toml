@@ -1,12 +1,12 @@
 [package]
 name = "ghactions"
-version = "0.1.0"
+version = "0.2.0"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
 
-homepage = "https://github.com/GeekMasher/gh_actions"
-repository = "https://github.com/GeekMasher/gh_actions"
-documentation = "https://github.com/GeekMasher/gh_actions"
+homepage = "https://github.com/GeekMasher/ghactions"
+repository = "https://github.com/GeekMasher/ghactions"
+documentation = "https://github.com/GeekMasher/ghactions"
 authors = ["GeekMasher"]
 license = "MIT"
 

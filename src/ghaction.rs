@@ -1,33 +1,3 @@
-/// GHAction automation to make your life easier when writing Rust
-/// GitHub Actions.
-///
-/// ```
-/// use ghactions::GHAction;
-///
-/// let action = GHAction::new();
-/// 
-/// if action.in_action() {
-///     // Name of your the Action
-///     let action_name = action.name.unwrap();
-///
-///     println!("{}", action_name);
-///
-///     // github.com or Enterprise Server
-///     let api_url = action.get("api_url")
-///         .unwrap();
-///
-///     // Get Actions Input
-///     let username = action.get_input("username")
-///         .unwrap();
-///
-/// }
-///```
-///
-/// Note: Do not use `.unwrap()` in production Actions
-///
-///
-///
-///
 use std::path::Path;
 use dotenv::dotenv;
 use hubcaps::{Github, Credentials};
@@ -52,6 +22,44 @@ fn load_environment_variables(prefix: &str) -> HashMap<String, String> {
 }
 
 
+/// Sets the output of the Actions which can be used in subsequent Actions.
+///
+/// # Examples
+///
+/// ```
+/// use ghactions::setoutput;
+/// 
+/// # fn foo() {
+/// setoutput!("hello", "world"); 
+/// # }
+/// ```
+#[macro_export(local_inner_macros)]
+macro_rules! setoutput {
+    // setoutput!("name", "value")
+    ($($arg:tt)+) => (log!($crate::Level::Info, "::set-output name={}::{}", $($arg)+))
+}
+
+
+/// GHAction automation to make your life easier when writing Rust
+/// GitHub Actions.
+///
+/// # Examples
+///
+/// ```
+/// use ghactions::{GHAction, info};
+///
+/// # fn main() {
+/// let mut action = GHAction::new();
+/// 
+/// if action.in_action() {
+///     // Name of your the Action
+///     info!("GitHub Action Name :: {}", &action.name.clone().unwrap_or_else(|| "N/A".to_string()));
+/// }
+/// # }
+///```
+///
+/// Note: Do not use `.unwrap()` in production Actions
+///
 #[derive(Debug)]
 pub struct GHAction {
     // Path to the root of the Action code
@@ -92,7 +100,7 @@ impl GHAction {
             .expect("GitHub Token is not set").to_string();
         let creds = Credentials::Token(github_token);
         let github_client = Github::new(
-            format!("gh_actions/{}", VERSION),
+            format!("ghactions/{}", VERSION),
             creds
         ).ok();
 
@@ -153,13 +161,17 @@ impl GHAction {
         None
     }
 
+    pub fn set_output(&mut self, name: &str, value: &str) {
+        setoutput!(name, value);
+    }
+
     pub fn load_actions_file(&mut self) -> &mut Self {
         let action_file_path = self.action_path();
         info!("Loading Action file: {}", &action_file_path);
 
         match ActionYML::load_action(action_file_path) {
             Ok(action_yml) => {
-                info!("Found and loaded Actions YML file"); 
+                debug!("Found and loaded Actions YML file"); 
 
                 self.name = action_yml.name;
                 self.description = action_yml.description;
