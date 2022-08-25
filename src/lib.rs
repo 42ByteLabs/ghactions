@@ -19,7 +19,6 @@ pub use log::{info, warn, debug, error, log, Level};
 ///
 /// # fn main() {
 /// let mut action = ghactions::init();
-/// action.load_actions_file();
 ///
 /// if action.in_action() {
 ///     info!("Running Action...");

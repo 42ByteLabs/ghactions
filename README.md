@@ -2,44 +2,47 @@
 
 This is a Rust GitHub Actions library which should help those of us that write GitHub Actions in Rust.
 
-## Installing
-
-**Cargo.toml**
-
-```toml
-[dependencies]
-ghactions = "0.1.0"
-```
-
 
 ## Usage
 
 ```rust
-use ghactions::GHAction;
+use ghactions::{info, debug, warn, error, group, groupend, errorf, setoutput};
 
-fn main() {
-    let action = GHAction::new();
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let mut action = ghactions::init();
 
     if action.in_action() {
-        // Name of your the Action
-        let action_name = action.name.unwrap();
+        info!("GitHub Action Name :: {}", &action.name.clone().unwrap_or_else(|| "N/A".to_string()));
 
-        println!(action_name);
+        let repository = action.get("repository").unwrap();
 
-        // github.com or Enterprise Server
-        let api_url = action.get("api_url")
-            .unwrap();
+        group!("Main Workflow");
 
-        // Get Actions Input
-        let username = action.get_input("username")
-            .unwrap();
+        info!(" > Repository('{}')", repository);
 
-        // Using the Hubcaps client
         let client = action.client
             .unwrap();
 
-        let repo = client.repo("GeekMasher", "gh_actions");
+        let owner = "GeekMasher";
+        let repo = "ghactions";
+
+        // https://github.com/softprops/hubcaps/blob/master/examples/releases.rs
+        let latest = client.repo(owner, repo).releases().latest().await?;
+        info!("{:#?}", latest);
+
+        for r in client.repo(owner, repo).releases().list().await? {
+            info!("  -> {}", r.name);
+        }
+
+        groupend!();
     }
+    else {
+        error!("Failed to load action.yml file");
+    }
+    Ok(())
 }
 ```
 
