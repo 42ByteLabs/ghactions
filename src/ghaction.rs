@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 use dotenv::dotenv;
-use hubcaps::{Github, Credentials};
+use octocrab::Octocrab;
 use std::{env, collections::HashMap};
 use log::{info, debug, warn};
 
-use crate::{models::ActionYML, RepositoryReference};
+use crate::{models::ActionYML, RepositoryReference, GHActionError};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -48,11 +48,11 @@ macro_rules! setoutput {
 /// use ghactions::{GHAction, info};
 ///
 /// # fn main() {
-/// let mut action = GHAction::new();
+/// let mut action = GHAction::new().unwrap();
 /// 
 /// if action.in_action() {
 ///     // Name of your the Action
-///     info!("GitHub Action Name :: {}", &action.name.clone().unwrap_or_else(|| "N/A".to_string()));
+///     info!("GitHub Action Name :: {}", action.name.clone().unwrap_or_else(|| "N/A".to_string()));
 /// }
 /// # }
 ///```
@@ -66,7 +66,7 @@ pub struct GHAction {
 
     pub repository: RepositoryReference,
 
-    pub client: Option<Github>,
+    pub client: Option<Octocrab>,
 
     pub name: Option<String>,
     pub description: Option<String>,
@@ -80,11 +80,6 @@ pub struct GHAction {
     pub loaded: bool,
 }
 
-impl Default for GHAction {
-    fn default() -> Self {
-        GHAction::new()
-    }
-}
 
 impl GHAction {
     /// Create a new GHAction struct
@@ -92,14 +87,15 @@ impl GHAction {
     /// ```
     /// use ghactions::{GHAction, info};
     /// # fn main() {
-    /// let mut action = GHAction::new();
+    /// let mut action = GHAction::new().unwrap();
     /// info!("Action Name :: {}", action.name.unwrap_or_else(|| "N/A".to_string()));
     /// info!("Action Path :: {}", action.path);
     /// # }
     ///
     /// ```
-    pub fn new() -> Self {
+    pub fn new() -> Result<Self, GHActionError> {
         debug!("Loading dotenv...");
+        // Load dotenv files, this is mainly for local testing
         dotenv().ok();
 
         let action_path = GHAction::default_path(); 
@@ -117,26 +113,37 @@ impl GHAction {
             None => RepositoryReference::default()
         };
 
-        // Hubcap magic
-        let github_token: String = github.get("token")
-            .expect("GitHub Token is not set").to_string();
-        let creds = Credentials::Token(github_token);
-        let github_client = Github::new(
-            format!("ghactions/{}", VERSION),
-            creds
-        ).ok();
+        // Octocrab magic
+        let github_token: String = match github.get("token") {
+            Some(t) => t.to_string(),
+            None => {
+                return Err(GHActionError::FailedLoading("token".to_string()))
+            }
+        };
 
-        GHAction {
+        let client_builder = Octocrab::builder()
+            .personal_token(github_token)
+            .build();
+
+        let client: Option<Octocrab> = match client_builder {
+            Ok(c) => Some(c),
+            Err(err) => {
+                warn!("Failed to load client: {}", err.to_string());
+                None
+            }
+        };
+
+        Ok(GHAction {
             path: action_path,
             repository,
-            client: github_client,
+            client,
             name: None,
             description: None,
             inputs: load_environment_variables("INPUT"),
             github,
             runner: load_environment_variables("RUNNER"),
             loaded: false
-        }
+        })
     }
 
     fn default_path() -> String {
@@ -170,11 +177,11 @@ impl GHAction {
     /// Check to see if there is an Action yaml file present
     ///
     /// ```
-    /// # use ghactions::info;
+    /// use ghactions::{GHAction, info};
     /// # fn main() {
-    /// let mut action = ghactions::init();
+    /// let mut action = GHAction::new().unwrap();
     /// if action.in_action() {
-    ///     info!("Action Name :: {}", action.name.unwrap_or_else(|| "N/A".to_string()));
+    ///     info!("Action Name :: {}", &action.name.unwrap_or_else(|| "N/A".to_string()));
     /// }
     /// # }
     /// ```
@@ -186,8 +193,9 @@ impl GHAction {
     ///
     /// ```
     /// # use ghactions::info;
+    /// use ghactions::GHAction;
     /// # fn main() {
-    /// let mut action = ghactions::init();
+    /// let mut action = GHAction::new().unwrap();
     /// action.set_path(String::from("./subpath"));
     ///
     /// # }
