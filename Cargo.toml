@@ -1,6 +1,6 @@
 [package]
 name = "ghactions"
-version = "0.2.1"
+version = "0.3.0"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
 
@@ -19,11 +19,10 @@ readme = "README.md"
 
 [dependencies]
 dotenv = "0.15.0"
+thiserror = "1.0.35"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9.2"
-
 hubcaps = "0.6.2"
-
 log = "0.4.17"
 env_logger = "0.9.0"
 

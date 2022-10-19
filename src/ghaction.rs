@@ -1,10 +1,10 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use dotenv::dotenv;
 use hubcaps::{Github, Credentials};
 use std::{env, collections::HashMap};
 use log::{info, debug, warn};
 
-use crate::models::ActionYML;
+use crate::{models::ActionYML, RepositoryReference};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -20,7 +20,6 @@ fn load_environment_variables(prefix: &str) -> HashMap<String, String> {
     }
     list
 }
-
 
 /// Sets the output of the Actions which can be used in subsequent Actions.
 ///
@@ -62,10 +61,10 @@ macro_rules! setoutput {
 ///
 #[derive(Debug)]
 pub struct GHAction {
-    // Path to the root of the Action code
+    /// Path of the Action YML File
     pub path: String,
-    // `action.yml` path
-    pub action_file_path: String, 
+
+    pub repository: RepositoryReference,
 
     pub client: Option<Github>,
 
@@ -88,12 +87,35 @@ impl Default for GHAction {
 }
 
 impl GHAction {
+    /// Create a new GHAction struct
+    ///
+    /// ```
+    /// use ghactions::{GHAction, info};
+    /// # fn main() {
+    /// let mut action = GHAction::new();
+    /// info!("Action Name :: {}", action.name.unwrap_or_else(|| "N/A".to_string()));
+    /// info!("Action Path :: {}", action.path);
+    /// # }
+    ///
+    /// ```
     pub fn new() -> Self {
         debug!("Loading dotenv...");
         dotenv().ok();
 
-        let action_path: String = env::var("GITHUB_ACTION_PATH").unwrap_or_else(|_| "./".to_string());
+        let action_path = GHAction::default_path(); 
+        
+        debug!("Action YML File :: {}", action_path);
+        
         let github = load_environment_variables("GITHUB");
+
+        // repository
+
+        let repository: RepositoryReference = match github.get("repository") {
+            Some(repo) => {
+                RepositoryReference::parse(repo).unwrap()
+            },
+            None => RepositoryReference::default()
+        };
 
         // Hubcap magic
         let github_token: String = github.get("token")
@@ -106,7 +128,7 @@ impl GHAction {
 
         GHAction {
             path: action_path,
-            action_file_path: "action.yml".to_string(),
+            repository,
             client: github_client,
             name: None,
             description: None,
@@ -117,22 +139,62 @@ impl GHAction {
         }
     }
 
-    pub fn in_action(&mut self) -> bool {
-        Path::new(&self.action_path()).exists()
+    fn default_path() -> String {
+        let mut path = PathBuf::new();
+
+        // If the environment variable
+        if let Ok(p) = env::var("GITHUB_ACTION_PATH") {
+            path = PathBuf::from(&p);
+        }
+        else if let Ok(p) = std::env::current_exe() {
+            let mut exe_path = p;
+            // Remove exe file name
+            exe_path.pop();
+        }
+        else {
+            debug!("Using relative path to working directory");
+        }
+        
+        path.push("action.yml");
+        
+        if Path::new(&path).exists() {
+            info!("Path Exists");
+        }
+
+        let final_path = path.into_os_string().into_string()
+            .expect("Unable to create default Action path");
+    
+        final_path
     }
 
+    /// Check to see if there is an Action yaml file present
+    ///
+    /// ```
+    /// # use ghactions::info;
+    /// # fn main() {
+    /// let mut action = ghactions::init();
+    /// if action.in_action() {
+    ///     info!("Action Name :: {}", action.name.unwrap_or_else(|| "N/A".to_string()));
+    /// }
+    /// # }
+    /// ```
+    pub fn in_action(&mut self) -> bool {
+        Path::new(&self.path).exists()
+    }
+    
+    /// Set the Action YML Path (directory)
+    ///
+    /// ```
+    /// # use ghactions::info;
+    /// # fn main() {
+    /// let mut action = ghactions::init();
+    /// action.set_path(String::from("./subpath"));
+    ///
+    /// # }
+    /// ```
     pub fn set_path(&mut self, path: String) -> &mut Self {
-        self.action_file_path = Path::new(&path).join("action.yml")
-            .to_str().unwrap_or("./action.yml").to_string();
         self.path = path;
         self
-    }
-
-    fn action_path(&mut self) -> String {
-        let action_file_path: String = Path::new(&self.path).join(&self.action_file_path)
-            .to_str().unwrap_or("./action.yml").to_string();
-        
-        action_file_path
     }
 
     fn encode_envvar(prefix: &str, key: &str) -> String {
@@ -151,7 +213,19 @@ impl GHAction {
 
         None
     } 
-
+    
+    /// Gets an input passed into the Action using a key and pre-loaded inputs
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ghactions::GHAction;
+    ///
+    /// # fn foo() {
+    /// let mut action = GHAction::new();
+    ///
+    /// # }
+    /// ```
     pub fn get_input(&mut self, input: &str) -> Option<String> {
         let new_input = input.to_lowercase();
         if self.inputs.contains_key(&new_input) {
@@ -166,10 +240,9 @@ impl GHAction {
     }
 
     pub fn load_actions_file(&mut self) -> &mut Self {
-        let action_file_path = self.action_path();
-        info!("Loading Action file: {}", &action_file_path);
+        info!("Loading Action file: {}", &self.path);
 
-        match ActionYML::load_action(action_file_path) {
+        match ActionYML::load_action(self.path.clone()) {
             Ok(action_yml) => {
                 debug!("Found and loaded Actions YML file"); 
 

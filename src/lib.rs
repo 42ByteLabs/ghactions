@@ -3,14 +3,22 @@
 pub mod models;
 pub mod ghaction;
 pub mod logging;
+pub mod reporef;
 
-// 
-pub use ghaction::GHAction;
-pub use logging::init_logger;
+pub use crate::ghaction::GHAction;
+pub use crate::reporef::RepositoryReference;
+pub use crate::logging::init_logger;
+
 
 // Publicly re-exporting logging functions
 pub use log::{info, warn, debug, error, log, Level};
 
+
+#[derive(thiserror::Error, Debug, PartialEq)]
+pub enum GHActionError {
+    #[error("Unable to parse repo reference: `{0}`")]
+    RepositoryReferenceError(String), 
+}
 
 /// Initialise the GitHub Action by using the `init()` functions
 ///
@@ -20,9 +28,7 @@ pub use log::{info, warn, debug, error, log, Level};
 /// # fn main() {
 /// let mut action = ghactions::init();
 ///
-/// if action.in_action() {
-///     info!("Running Action...");
-/// }
+/// info!("GitHub Action Name :: {}", &action.name.unwrap_or_else(|| "N/A".to_string()));
 /// # }
 /// ```
 pub fn init() -> GHAction {
