@@ -26,10 +26,14 @@ use env_logger::Builder;
 /// ```
 pub fn init_logger() -> Builder {
     let mut builder = Builder::from_default_env();
+    
     // Make sure the target is STDOUT
     builder.target(env_logger::Target::Stdout);
-    // Find and setup the corrent log level 
-    builder.filter_level(get_log_level());
+
+    // Find and setup the correct log level 
+    builder.filter(None, get_log_level());
+    builder.write_style(env_logger::WriteStyle::Always);
+
     // Custom Formatter for Actions
     builder
         .format(|buf, record| {
