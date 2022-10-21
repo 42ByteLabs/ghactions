@@ -25,7 +25,12 @@ use env_logger::Builder;
 /// # }
 /// ```
 pub fn init_logger() -> Builder {
-    let mut builder = Builder::new();
+    let mut builder = Builder::from_default_env();
+    // Make sure the target is STDOUT
+    builder.target(env_logger::Target::Stdout);
+    // Find and setup the corrent log level 
+    builder.filter_level(get_log_level());
+    // Custom Formatter for Actions
     builder
         .format(|buf, record| {
             match record.level().as_str() {
@@ -36,17 +41,26 @@ pub fn init_logger() -> Builder {
                 },
                 _ => writeln!(buf, "{}", record.args())
             }
-
         });
-   
-    match env::var("ACTIONS_RUNNER_DEBUG") {
-        Ok(_value) => {
-            builder.filter_level(log::LevelFilter::Debug)
-        },
-        Err(_err) => builder.filter_level(log::LevelFilter::Info)
-    };
 
     builder
+}
+
+
+/// Get the Log Level for the logger
+fn get_log_level() -> log::LevelFilter {
+    // DEBUG 
+    match env::var("DEBUG") {
+        Ok(_value) => return log::LevelFilter::Debug,
+        Err(_err) => ()
+    }
+    // ACTIONS_RUNNER_DEBUG
+    match env::var("ACTIONS_RUNNER_DEBUG") {
+        Ok(_value) => return log::LevelFilter::Debug,
+        Err(_err) => ()
+    };
+
+    log::LevelFilter::Info
 }
 
 
