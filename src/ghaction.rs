@@ -99,7 +99,7 @@ impl GHAction {
         dotenv().ok();
 
         let action_path = GHAction::default_path(); 
-        
+ 
         debug!("Action YML File :: {}", action_path);
         
         let github = load_environment_variables("GITHUB");
@@ -113,19 +113,27 @@ impl GHAction {
             None => RepositoryReference::default()
         };
 
-        // Octocrab magic
-        let github_token: String = match github.get("token") {
-            Some(t) => t.to_string(),
-            None => {
-                return Err(GHActionError::FailedLoading("token".to_string()))
-            }
+        // Create the init action struct
+        let mut action = GHAction {
+            path: action_path,
+            repository,
+            client: None,
+            name: None,
+            description: None,
+            inputs: load_environment_variables("INPUT"),
+            github,
+            runner: load_environment_variables("RUNNER"),
+            loaded: false
         };
+
+        // Octocrab magic
+        let github_token: String = action.get_token().unwrap_or_else(|| "".to_string());
 
         let client_builder = Octocrab::builder()
             .personal_token(github_token)
             .build();
 
-        let client: Option<Octocrab> = match client_builder {
+        action.client = match client_builder {
             Ok(c) => Some(c),
             Err(err) => {
                 warn!("Failed to load client: {}", err.to_string());
@@ -133,17 +141,8 @@ impl GHAction {
             }
         };
 
-        Ok(GHAction {
-            path: action_path,
-            repository,
-            client,
-            name: None,
-            description: None,
-            inputs: load_environment_variables("INPUT"),
-            github,
-            runner: load_environment_variables("RUNNER"),
-            loaded: false
-        })
+
+        Ok(action)
     }
 
     fn default_path() -> String {
@@ -172,6 +171,47 @@ impl GHAction {
             .expect("Unable to create default Action path");
     
         final_path
+    }
+
+    /// Check and get the GitHub token from the many locations it could be stored at 
+    ///
+    /// 1. Environment Variable: `GITHUB_TOKEN`
+    /// 2. Environment Variable: `ACTIONS_RUNTIME_TOKEN`
+    /// 3. Actions Input: `token`
+    ///
+    /// ```
+    /// use ghactions::GHAction;
+    ///
+    /// # fn main() {
+    /// let mut action = GHAction::new().unwrap();
+    ///
+    /// println!("{}", action.get_token().unwrap());
+    /// # }
+    /// ```
+    pub fn get_token(&mut self) -> Option<String> {
+        // Env Var: GITHUB_TOKEN 
+        match self.github.get("token") {
+            Some(t) => return Some(t.to_string()),
+            None => {
+                debug!("Failed to find token at GITHUB_TOKEN");
+            }
+        };
+        // Env Var: ACTIONS_RUNTIME_TOKEN
+        match std::env::var("ACTIONS_RUNTIME_TOKEN") {
+            Ok(t) => return Some(t), 
+            Err(_err) => {
+                debug!("Failed to find token at ACTIONS_RUNTIME_TOKEN");
+            } 
+        };
+        // Input `token`
+        match self.inputs.get("token") {
+            Some(t) => return Some(t.to_string()),
+            None => {
+                debug!("Failed to find token at INPUT_TOKEN");
+            }
+        }
+        
+        None
     }
 
     /// Check to see if there is an Action yaml file present
