@@ -14,7 +14,7 @@ pub use log::{debug, error, info, log, warn, Level};
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GHActionError {
-    #[error("Failed to load enviroment: `{0}`")]
+    #[error("Failed to load environment: `{0}`")]
     FailedLoading(String),
 
     #[error("Unable to parse repo reference: `{0}`")]
@@ -27,7 +27,9 @@ pub enum GHActionError {
 /// use log::info;
 /// use anyhow::Result;
 ///
-/// fn main() -> Result<()> {
+///
+/// #[tokio::main]
+/// async fn main() -> Result<()> {
 ///     let mut action = ghactions::init()?;
 ///
 ///     info!("GitHub Action Name :: {}", &action.name.unwrap_or_else(|| "N/A".to_string()));

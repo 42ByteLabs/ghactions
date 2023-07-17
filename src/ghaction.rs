@@ -44,16 +44,16 @@ macro_rules! setoutput {
 /// # Examples
 ///
 /// ```
+/// # use anyhow::Result;
 /// use ghactions::{GHAction, info};
 ///
-/// # fn main() {
-/// let mut action = GHAction::new().unwrap();
+/// #[tokio::main]
+/// async fn main() {
+///     let action = GHAction::new().unwrap();
 ///
-/// if action.in_action() {
 ///     // Name of your the Action
-///     info!("GitHub Action Name :: {}", action.name.clone().unwrap_or_else(|| "N/A".to_string()));
+///     info!("GitHub Action Name :: {:?}", action.name);
 /// }
-/// # }
 ///```
 ///
 /// Note: Do not use `.unwrap()` in production Actions
@@ -84,11 +84,13 @@ impl GHAction {
     ///
     /// ```
     /// use ghactions::{GHAction, info};
-    /// # fn main() {
-    /// let mut action = GHAction::new().unwrap();
-    /// info!("Action Name :: {}", action.name.unwrap_or_else(|| "N/A".to_string()));
-    /// info!("Action Path :: {}", action.path);
-    /// # }
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let mut action = GHAction::new().unwrap();
+    ///     info!("Action Name :: {}", action.name.unwrap_or_else(|| "N/A".to_string()));
+    ///     info!("Action Path :: {}", action.path);
+    /// }
     ///
     /// ```
     pub fn new() -> Result<Self, GHActionError> {
@@ -172,11 +174,12 @@ impl GHAction {
     /// ```
     /// use ghactions::GHAction;
     ///
-    /// # fn main() {
-    /// let mut action = GHAction::new().unwrap();
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let mut action = GHAction::new().unwrap();
     ///
-    /// println!("{}", action.get_token().unwrap());
-    /// # }
+    ///     println!("{}", action.get_token().unwrap());
+    /// }
     /// ```
     pub fn get_token(&mut self) -> Option<String> {
         // Env Var: GITHUB_TOKEN
@@ -208,12 +211,14 @@ impl GHAction {
     ///
     /// ```
     /// use ghactions::{GHAction, info};
-    /// # fn main() {
-    /// let mut action = GHAction::new().unwrap();
-    /// if action.in_action() {
-    ///     info!("Action Name :: {}", &action.name.unwrap_or_else(|| "N/A".to_string()));
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let mut action = GHAction::new().unwrap();
+    ///     if action.in_action() {
+    ///         info!("Action Name :: {}", &action.name.unwrap_or_else(|| "N/A".to_string()));
+    ///     }
     /// }
-    /// # }
     /// ```
     pub fn in_action(&mut self) -> bool {
         Path::new(&self.path).exists()
@@ -224,11 +229,13 @@ impl GHAction {
     /// ```
     /// # use ghactions::info;
     /// use ghactions::GHAction;
-    /// # fn main() {
-    /// let mut action = GHAction::new().unwrap();
-    /// action.set_path(String::from("./subpath"));
     ///
-    /// # }
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let mut action = GHAction::new().unwrap();
+    ///
+    ///     action.set_path(String::from("./subpath"));
+    /// }
     /// ```
     pub fn set_path(&mut self, path: String) -> &mut Self {
         self.path = path;
