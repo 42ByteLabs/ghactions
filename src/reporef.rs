@@ -60,11 +60,7 @@ impl RepositoryReference {
         // If the path is now empty, create the full path
         if !path.as_os_str().is_empty() {
             // This is a basic way to detect path traversal, might want to do better
-            if path
-                .components()
-                .into_iter()
-                .any(|x| x == Component::ParentDir)
-            {
+            if path.components().any(|x| x == Component::ParentDir) {
                 return Err(GHActionError::RepositoryReferenceError(
                     "Path traversal detected".to_string(),
                 ));

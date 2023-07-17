@@ -11,7 +11,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 fn load_environment_variables(prefix: &str) -> HashMap<String, String> {
     let mut list = HashMap::<String, String>::new();
     for (env_key, env_value) in env::vars() {
-        if env_key.starts_with(&prefix) {
+        if env_key.starts_with(prefix) {
             let fkey = format!("{}_", prefix);
             let new_key = env_key.replace(&fkey, "").to_lowercase();
             debug!("Loading `{}` Env Key: {}", prefix, new_key);
@@ -123,7 +123,7 @@ impl GHAction {
         };
 
         // Octocrab magic
-        let github_token: String = action.get_token().unwrap_or_else(|| "".to_string());
+        let github_token: String = action.get_token().unwrap_or_default();
 
         let client_builder = Octocrab::builder().personal_token(github_token).build();
 
@@ -158,12 +158,9 @@ impl GHAction {
             info!("Path Exists");
         }
 
-        let final_path = path
-            .into_os_string()
+        path.into_os_string()
             .into_string()
-            .expect("Unable to create default Action path");
-
-        final_path
+            .expect("Unable to create default Action path")
     }
 
     /// Check and get the GitHub token from the many locations it could be stored at
