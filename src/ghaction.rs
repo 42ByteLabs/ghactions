@@ -178,7 +178,7 @@ impl GHAction {
     /// async fn main() {
     ///     let mut action = GHAction::new().unwrap();
     ///
-    ///     println!("{}", action.get_token().unwrap());
+    ///     println!("{:?}", action.get_token());
     /// }
     /// ```
     pub fn get_token(&mut self) -> Option<String> {
