@@ -1,10 +1,10 @@
-use std::path::{Path, PathBuf};
 use dotenv::dotenv;
+use log::{debug, info, warn};
 use octocrab::Octocrab;
-use std::{env, collections::HashMap};
-use log::{info, debug, warn};
+use std::path::{Path, PathBuf};
+use std::{collections::HashMap, env};
 
-use crate::{models::ActionYML, RepositoryReference, GHActionError};
+use crate::{models::ActionYML, GHActionError, RepositoryReference};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -27,9 +27,9 @@ fn load_environment_variables(prefix: &str) -> HashMap<String, String> {
 ///
 /// ```
 /// use ghactions::setoutput;
-/// 
+///
 /// # fn foo() {
-/// setoutput!("hello", "world"); 
+/// setoutput!("hello", "world");
 /// # }
 /// ```
 #[macro_export(local_inner_macros)]
@@ -37,7 +37,6 @@ macro_rules! setoutput {
     // setoutput!("name", "value")
     ($($arg:tt)+) => (log!($crate::Level::Info, "::set-output name={}::{}", $($arg)+))
 }
-
 
 /// GHAction automation to make your life easier when writing Rust
 /// GitHub Actions.
@@ -49,7 +48,7 @@ macro_rules! setoutput {
 ///
 /// # fn main() {
 /// let mut action = GHAction::new().unwrap();
-/// 
+///
 /// if action.in_action() {
 ///     // Name of your the Action
 ///     info!("GitHub Action Name :: {}", action.name.clone().unwrap_or_else(|| "N/A".to_string()));
@@ -80,7 +79,6 @@ pub struct GHAction {
     pub loaded: bool,
 }
 
-
 impl GHAction {
     /// Create a new GHAction struct
     ///
@@ -98,19 +96,17 @@ impl GHAction {
         // Load dotenv files, this is mainly for local testing
         dotenv().ok();
 
-        let action_path = GHAction::default_path(); 
- 
+        let action_path = GHAction::default_path();
+
         debug!("Action YML File :: {}", action_path);
-        
+
         let github = load_environment_variables("GITHUB");
 
         // repository
 
         let repository: RepositoryReference = match github.get("repository") {
-            Some(repo) => {
-                RepositoryReference::parse(repo).unwrap()
-            },
-            None => RepositoryReference::default()
+            Some(repo) => RepositoryReference::parse(repo).unwrap(),
+            None => RepositoryReference::default(),
         };
 
         // Create the init action struct
@@ -123,15 +119,13 @@ impl GHAction {
             inputs: load_environment_variables("INPUT"),
             github,
             runner: load_environment_variables("RUNNER"),
-            loaded: false
+            loaded: false,
         };
 
         // Octocrab magic
         let github_token: String = action.get_token().unwrap_or_else(|| "".to_string());
 
-        let client_builder = Octocrab::builder()
-            .personal_token(github_token)
-            .build();
+        let client_builder = Octocrab::builder().personal_token(github_token).build();
 
         action.client = match client_builder {
             Ok(c) => Some(c),
@@ -140,7 +134,6 @@ impl GHAction {
                 None
             }
         };
-
 
         Ok(action)
     }
@@ -151,29 +144,29 @@ impl GHAction {
         // If the environment variable
         if let Ok(p) = env::var("GITHUB_ACTION_PATH") {
             path = PathBuf::from(&p);
-        }
-        else if let Ok(p) = std::env::current_exe() {
+        } else if let Ok(p) = std::env::current_exe() {
             let mut exe_path = p;
             // Remove exe file name
             exe_path.pop();
-        }
-        else {
+        } else {
             debug!("Using relative path to working directory");
         }
-        
+
         path.push("action.yml");
-        
+
         if Path::new(&path).exists() {
             info!("Path Exists");
         }
 
-        let final_path = path.into_os_string().into_string()
+        let final_path = path
+            .into_os_string()
+            .into_string()
             .expect("Unable to create default Action path");
-    
+
         final_path
     }
 
-    /// Check and get the GitHub token from the many locations it could be stored at 
+    /// Check and get the GitHub token from the many locations it could be stored at
     ///
     /// 1. Environment Variable: `GITHUB_TOKEN`
     /// 2. Environment Variable: `ACTIONS_RUNTIME_TOKEN`
@@ -189,7 +182,7 @@ impl GHAction {
     /// # }
     /// ```
     pub fn get_token(&mut self) -> Option<String> {
-        // Env Var: GITHUB_TOKEN 
+        // Env Var: GITHUB_TOKEN
         match self.github.get("token") {
             Some(t) => return Some(t.to_string()),
             None => {
@@ -198,10 +191,10 @@ impl GHAction {
         };
         // Env Var: ACTIONS_RUNTIME_TOKEN
         match std::env::var("ACTIONS_RUNTIME_TOKEN") {
-            Ok(t) => return Some(t), 
+            Ok(t) => return Some(t),
             Err(_err) => {
                 debug!("Failed to find token at ACTIONS_RUNTIME_TOKEN");
-            } 
+            }
         };
         // Input `token`
         match self.inputs.get("token") {
@@ -210,7 +203,7 @@ impl GHAction {
                 debug!("Failed to find token at INPUT_TOKEN");
             }
         }
-        
+
         None
     }
 
@@ -228,7 +221,7 @@ impl GHAction {
     pub fn in_action(&mut self) -> bool {
         Path::new(&self.path).exists()
     }
-    
+
     /// Set the Action YML Path (directory)
     ///
     /// ```
@@ -249,7 +242,7 @@ impl GHAction {
         let new_key: String = key.to_owned().replace('-', "_").to_uppercase();
         format!("{}_{}", prefix, &new_key)
     }
-    
+
     pub fn get(&mut self, key: &str) -> Option<String> {
         let new_key = key.to_lowercase();
         if self.github.contains_key(&new_key) {
@@ -260,8 +253,8 @@ impl GHAction {
         }
 
         None
-    } 
-    
+    }
+
     /// Gets an input passed into the Action using a key and pre-loaded inputs
     ///
     /// # Examples
@@ -292,7 +285,7 @@ impl GHAction {
 
         match ActionYML::load_action(self.path.clone()) {
             Ok(action_yml) => {
-                debug!("Found and loaded Actions YML file"); 
+                debug!("Found and loaded Actions YML file");
 
                 self.name = action_yml.name;
                 self.description = action_yml.description;
@@ -303,22 +296,19 @@ impl GHAction {
                         Ok(v) => {
                             debug!("Found key and envvar: {}", &key);
                             self.inputs.insert(key, v);
-                        },
-                        Err(_e) => { 
+                        }
+                        Err(_e) => {
                             warn!("Failed to find key: {}", &key);
                         }
                     }
                 }
                 self.loaded = true;
-            },
+            }
             Err(e) => {
                 warn!("Failed to load inputs: {}", e);
-            },
+            }
         };
 
         self
     }
 }
-
-
-

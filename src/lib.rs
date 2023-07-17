@@ -1,18 +1,16 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
-pub mod models;
 pub mod ghaction;
 pub mod logging;
+pub mod models;
 pub mod reporef;
 
 pub use crate::ghaction::GHAction;
-pub use crate::reporef::RepositoryReference;
 pub use crate::logging::init_logger;
-
+pub use crate::reporef::RepositoryReference;
 
 // Publicly re-exporting logging functions
-pub use log::{info, warn, debug, error, log, Level};
-
+pub use log::{debug, error, info, log, warn, Level};
 
 #[derive(thiserror::Error, Debug, PartialEq)]
 pub enum GHActionError {
@@ -20,7 +18,7 @@ pub enum GHActionError {
     FailedLoading(String),
 
     #[error("Unable to parse repo reference: `{0}`")]
-    RepositoryReferenceError(String), 
+    RepositoryReferenceError(String),
 }
 
 /// Initialise the GitHub Action by using the `init()` functions
@@ -54,8 +52,5 @@ pub fn init() -> Result<GHAction, GHActionError> {
     Ok(action)
 }
 
-
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

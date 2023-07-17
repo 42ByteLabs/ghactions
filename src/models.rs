@@ -1,6 +1,5 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ActionYML {
@@ -9,7 +8,6 @@ pub struct ActionYML {
 
     pub inputs: HashMap<String, ActionInput>,
 }
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ActionInput {
@@ -25,7 +23,6 @@ impl ActionYML {
     }
 }
 
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ActionRuns {
     pub using: String,
@@ -35,8 +32,5 @@ pub struct ActionRuns {
 
     // Docker Action
     pub image: Option<String>,
-    pub args: Option<Vec<String>>
+    pub args: Option<Vec<String>>,
 }
-
-
-

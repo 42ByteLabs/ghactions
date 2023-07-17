@@ -1,10 +1,8 @@
-
-use std::io::Write;
-use std::env;
 use env_logger::Builder;
+use std::env;
+use std::io::Write;
 
-
-/// Initialise and create a `env_logger::Builder` which follows the 
+/// Initialise and create a `env_logger::Builder` which follows the
 /// GitHub Actions logging syntax.
 ///
 /// # Examples
@@ -26,47 +24,42 @@ use env_logger::Builder;
 /// ```
 pub fn init_logger() -> Builder {
     let mut builder = Builder::from_default_env();
-    
+
     // Make sure the target is STDOUT
     builder.target(env_logger::Target::Stdout);
 
-    // Find and setup the correct log level 
+    // Find and setup the correct log level
     builder.filter(None, get_log_level());
     builder.write_style(env_logger::WriteStyle::Always);
 
     // Custom Formatter for Actions
-    builder
-        .format(|buf, record| {
-            match record.level().as_str() {
-                "DEBUG" => writeln!(buf, "::debug :: {}", record.args()), 
-                "WARN" => writeln!(buf, "::warning :: {}", record.args()),
-                "ERROR" => {
-                    writeln!(buf, "::error :: {}", record.args())
-                },
-                _ => writeln!(buf, "{}", record.args())
-            }
-        });
+    builder.format(|buf, record| match record.level().as_str() {
+        "DEBUG" => writeln!(buf, "::debug :: {}", record.args()),
+        "WARN" => writeln!(buf, "::warning :: {}", record.args()),
+        "ERROR" => {
+            writeln!(buf, "::error :: {}", record.args())
+        }
+        _ => writeln!(buf, "{}", record.args()),
+    });
 
     builder
 }
 
-
 /// Get the Log Level for the logger
 fn get_log_level() -> log::LevelFilter {
-    // DEBUG 
+    // DEBUG
     match env::var("DEBUG") {
         Ok(_value) => return log::LevelFilter::Debug,
-        Err(_err) => ()
+        Err(_err) => (),
     }
     // ACTIONS_RUNNER_DEBUG
     match env::var("ACTIONS_RUNNER_DEBUG") {
         Ok(_value) => return log::LevelFilter::Debug,
-        Err(_err) => ()
+        Err(_err) => (),
     };
 
     log::LevelFilter::Info
 }
-
 
 /// Error for files (including line and column numbers)
 ///
@@ -94,8 +87,7 @@ macro_rules! errorf {
     ($($arg:tt)+) => (log!($crate::Level::Error, $($arg)+))
 }
 
-
-/// Group Macros 
+/// Group Macros
 ///
 /// # Examples
 ///
@@ -111,10 +103,10 @@ macro_rules! group {
     // group!("Group name")
     ($dst:expr $(,)?) => {
         log!(log::Level::Info, "::group::{}", $dst)
-    }
+    };
 }
 
-/// End Group Macros 
+/// End Group Macros
 ///
 /// # Examples
 ///
@@ -131,7 +123,5 @@ macro_rules! groupend {
     // group_end!()
     () => {
         log!(log::Level::Info, "::endgroup::")
-    }
+    };
 }
-
-
