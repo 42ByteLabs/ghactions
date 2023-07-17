@@ -1,4 +1,5 @@
 
+*.env
 .build.json
 
 # ---> Rust
