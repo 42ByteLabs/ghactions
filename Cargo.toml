@@ -21,10 +21,10 @@ readme = "README.md"
 dotenv = "0.15.0"
 thiserror = "1"
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.2"
-log = "0.4.17"
-env_logger = "0.10.0"
-octocrab = "0.31"
+serde_yaml = "0.9.27"
+log = "0.4.20"
+env_logger = "0.10.1"
+octocrab = "0.32"
 
 [dev-dependencies]
 anyhow = "1"
