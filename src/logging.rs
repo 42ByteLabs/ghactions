@@ -1,3 +1,4 @@
+//! Logging utilities for GitHub Actions
 use env_logger::Builder;
 use std::env;
 use std::io::Write;

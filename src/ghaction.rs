@@ -1,5 +1,8 @@
+//! GHActions is a library to make it easier to write GitHub Actions in Rust.
+
 use dotenv::dotenv;
 use log::{debug, info, warn};
+#[cfg(feature = "octocrab")]
 use octocrab::Octocrab;
 use std::path::{Path, PathBuf};
 use std::{collections::HashMap, env};
@@ -62,20 +65,27 @@ macro_rules! setoutput {
 pub struct GHAction {
     /// Path of the Action YML File
     pub path: String,
-
+    /// Repository Reference
     pub repository: RepositoryReference,
 
+    #[cfg(feature = "octocrab")]
+    /// GitHub Client (Octocrab)
     pub client: Option<Octocrab>,
 
+    /// Action Name
     pub name: Option<String>,
+    /// Action Description
     pub description: Option<String>,
-
+    /// Action Inputs
     pub inputs: HashMap<String, String>,
 
-    // https://docs.github.com/en/actions/learn-github-actions/environment-variables
+    /// GitHub Environment Variables
+    ///
+    /// https://docs.github.com/en/actions/learn-github-actions/environment-variables
     pub github: HashMap<String, String>,
+    /// Runner Environment Variables
     pub runner: HashMap<String, String>,
-
+    /// If the Action is loaded
     pub loaded: bool,
 }
 
@@ -112,9 +122,11 @@ impl GHAction {
         };
 
         // Create the init action struct
+        #[allow(unused_mut)]
         let mut action = GHAction {
             path: action_path,
             repository,
+            #[cfg(feature = "octocrab")]
             client: None,
             name: None,
             description: None,
@@ -124,18 +136,20 @@ impl GHAction {
             loaded: false,
         };
 
-        // Octocrab magic
-        let github_token: String = action.get_token().unwrap_or_default();
+        #[cfg(feature = "octocrab")]
+        {
+            // Octocrab magic
+            let github_token: String = action.get_token().unwrap_or_default();
+            let client_builder = Octocrab::builder().personal_token(github_token).build();
 
-        let client_builder = Octocrab::builder().personal_token(github_token).build();
-
-        action.client = match client_builder {
-            Ok(c) => Some(c),
-            Err(err) => {
-                warn!("Failed to load client: {}", err.to_string());
-                None
-            }
-        };
+            action.client = match client_builder {
+                Ok(c) => Some(c),
+                Err(err) => {
+                    warn!("Failed to load client: {}", err.to_string());
+                    None
+                }
+            };
+        }
 
         Ok(action)
     }
@@ -247,6 +261,7 @@ impl GHAction {
         format!("{}_{}", prefix, &new_key)
     }
 
+    /// Get an environment variable from the GitHub Action
     pub fn get(&mut self, key: &str) -> Option<String> {
         let new_key = key.to_lowercase();
         if self.github.contains_key(&new_key) {
@@ -280,10 +295,12 @@ impl GHAction {
         None
     }
 
+    /// Set an output for the Action
     pub fn set_output(&mut self, name: &str, value: &str) {
         setoutput!(name, value);
     }
 
+    /// Load the Action YML file and set the name, description, and inputs
     pub fn load_actions_file(&mut self) -> &mut Self {
         info!("Loading Action file: {}", &self.path);
 
