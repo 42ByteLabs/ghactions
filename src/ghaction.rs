@@ -1,6 +1,5 @@
 //! GHActions is a library to make it easier to write GitHub Actions in Rust.
 
-use dotenv::dotenv;
 use log::{debug, info, warn};
 #[cfg(feature = "octocrab")]
 use octocrab::Octocrab;
@@ -105,8 +104,6 @@ impl GHAction {
     /// ```
     pub fn new() -> Result<Self, GHActionError> {
         debug!("Loading dotenv...");
-        // Load dotenv files, this is mainly for local testing
-        dotenv().ok();
 
         let action_path = GHAction::default_path();
 
