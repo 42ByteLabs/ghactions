@@ -1,13 +1,23 @@
+//! RepositoryReference is a struct that holds the owner, name, path and reference of a repository
+//!
 #![allow(unused_assignments)]
-use std::path::{Component, PathBuf};
+use std::{
+    fmt::Display,
+    path::{Component, PathBuf},
+};
 
 use crate::GHActionError;
 
-#[derive(Debug, Default)]
+/// RepositoryReference is a struct that holds the owner, name, path and reference of a repository
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct RepositoryReference {
+    /// Repository owner
     pub owner: String,
+    /// Repository name
     pub name: String,
+    /// Repository path
     pub path: Option<String>,
+    /// Repository reference / branch
     pub reference: Option<String>,
 }
 
@@ -76,7 +86,14 @@ impl RepositoryReference {
         Ok(repo_ref)
     }
 
+    /// Covert the RepositoryReference to a displayable string
     pub fn display(&self) -> String {
+        format!("{}", self)
+    }
+}
+
+impl Display for RepositoryReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut retvalue = format!("{}/{}", self.owner, self.name);
         if let Some(path) = &self.path {
             retvalue.push('/');
@@ -87,7 +104,7 @@ impl RepositoryReference {
             retvalue.push_str(refer.as_str());
         }
 
-        retvalue
+        write!(f, "{}", retvalue)
     }
 }
 
