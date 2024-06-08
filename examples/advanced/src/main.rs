@@ -5,6 +5,11 @@ use ghactions::prelude::*;
 
 #[derive(Actions, Debug, Clone)]
 #[action(
+    // Setting the path to the action.yml file
+    //
+    // If the `generate` feature is enabled, the action.yml file will be generated
+    // dynamically based on the struct fields
+    path = "./action.yml",
     // Name of the Action
     name = "My Action",
     // Description of the Action
@@ -12,11 +17,11 @@ use ghactions::prelude::*;
 )]
 struct MyAction {
     /// Repository
-    #[input(description = "Repository Name")]
+    #[input(description = "Repository Name", default = "${{ github.repository }}")]
     repository: String,
 
     /// GitHub Token
-    #[input(description = "GitHub Token")]
+    #[input(description = "GitHub Token", default = "${{ github.token }}")]
     token: String,
 
     /// My Input
