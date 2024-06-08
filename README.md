@@ -14,13 +14,81 @@
 This is a Rust GitHub Actions library which should help those of us that write
 GitHub Actions in Rust.
 
-## 📦 Usage
+## 📦 Install
+
+Run the following command to add the library to your `Cargo.toml` file:
 
 ```bash
 cargo add ghactions
 ```
 
-Checkout some of our [examples] to see what you can do.
+## 📚 Features
+
+- Easy to use
+- Generate `action.yml` file automatically from code
+- Validate GitHub Actions files
+- Automatical input and output parsing
+- [Octocrab][octocrab] support
+
+## 🚀 Usage
+
+Here is a simple example of how to use the library:
+
+```rust
+use ghactions::prelude::*;
+
+#[derive(Actions, Debug, Clone)]
+#[action(
+    name = "My Action",
+    description = "My Action Description",
+)]
+struct MyAction {
+    /// My Input
+    #[input()]
+    mode: bool,
+
+    // Output called `version`
+    #[output()]
+    version: String,
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialise the Action
+    let action = MyAction::init()?;
+
+    info!("Action :: {:?}", action);
+
+    group!("Main Workflow");
+
+    info!("My Input Mode :: `{}`", action.mode);
+    info!("My Output Version :: `{}`", action.version);
+
+    groupend!();
+
+    Ok(())
+}
+```
+
+### Using Octocrab
+
+```rust
+use ghactions::prelude::*;
+
+#[derive(Actions, Debug, Clone)]
+struct MyAction {}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let action = MyAction::init()?;
+
+    group!("Octocrab");
+    let octocrab = action.octocrab()?;
+
+    // ... Do something...
+
+    Ok(())
+}
+```
 
 ## 🦸 Support
 
@@ -40,3 +108,5 @@ Please refer to [MIT][license] for the full terms.
 [github-issues]: https://github.com/42ByteLabs/ghactions/issues
 [crates-io]: https://crates.io/crates/ghactions
 [examples]: ./examples
+[octocrab]: https://crates.io/crates/octocrab
+
