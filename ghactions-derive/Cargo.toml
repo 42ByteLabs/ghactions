@@ -1,0 +1,42 @@
+[package]
+name = "ghactions-derive"
+version.workspace = true
+license.workspace = true
+description.workspace = true
+keywords.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+
+
+[lib]
+proc-macro = true
+
+[package.metadata.release]
+shared-version = true
+tag-name = "v{{version}}"
+
+[features]
+default = ["generate"]
+generate = []
+log = ["dep:log"]
+dotenvy = ["dep:dotenvy"]
+
+[dependencies]
+# macro magic
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = "2.0"
+
+ghactions-core = { path = "../ghactions-core" }
+
+log = { version = "^0.4", optional = true }
+dotenvy = { version = "^0.15", optional = true }
+
+[dev-dependencies]
+ghactions = { path = "../" }
+
