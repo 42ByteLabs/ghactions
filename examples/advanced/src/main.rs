@@ -9,7 +9,7 @@ use ghactions::prelude::*;
     //
     // If the `generate` feature is enabled, the action.yml file will be generated
     // dynamically based on the struct fields
-    path = "./action.yml",
+    path = "./examples/advanced/action.yml",
     // Name of the Action
     name = "My Action",
     // Description of the Action
