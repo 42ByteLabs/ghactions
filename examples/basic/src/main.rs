@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use ghactions::prelude::*;
 
 #[derive(Actions, Debug, Clone)]
@@ -43,7 +43,10 @@ async fn main() -> Result<()> {
     let octocrab = action.octocrab()?;
 
     let repository = octocrab
-        .repos(action.get_repository_owner()?, action.get_repository_name()?)
+        .repos(
+            action.get_repository_owner()?,
+            action.get_repository_name()?,
+        )
         .get()
         .await?;
 
