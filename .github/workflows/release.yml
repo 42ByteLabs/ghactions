@@ -17,3 +17,5 @@ jobs:
     secrets: inherit
     with:
       crate: ghactions
+      crates: ghactions-core,ghactions-derive,ghactions
+
