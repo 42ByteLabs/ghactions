@@ -1,0 +1,234 @@
+use proc_macro2::{Span, TokenStream};
+use quote::quote;
+use syn::{
+    parse::{Parse, ParseStream},
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Attribute, Ident, LitBool, LitInt, LitStr, Token,
+};
+
+#[derive(Debug, Clone)]
+pub(crate) struct ActionsAttribute {
+    #[allow(dead_code)]
+    pub(crate) span: Ident,
+    pub(crate) key: Option<ActionsAttributeKeys>,
+    pub(crate) value: Option<ActionsAttributeValue>,
+    pub(crate) value_span: Option<Span>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub(crate) enum ActionsAttributeKeys {
+    /// Main Actions attribute
+    Actions,
+    /// Action Input attribute
+    Input,
+    /// Action Output attribute
+    Output,
+    // Sub-attributes
+    /// Path attribute
+    Path,
+    Name,
+    Description,
+    Default,
+    /// https://docs.github.com/en/actions/learn-github-actions/expressions
+    Expression,
+    /// https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+    GitHub,
+    /// Required attribute
+    Required,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum ActionsAttributeValue {
+    /// String value
+    #[allow(dead_code)]
+    String(String),
+    /// Integer value
+    #[allow(dead_code)]
+    Int(i64),
+    /// Boolean value
+    #[allow(dead_code)]
+    Bool(bool),
+    /// Path value
+    #[allow(dead_code)]
+    Path(std::path::PathBuf),
+}
+
+impl Parse for ActionsAttribute {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let name: Ident = input.parse()?;
+        let name_str = name.to_string();
+
+        let key: Option<ActionsAttributeKeys> = match name_str.as_str() {
+            "actions" => Some(ActionsAttributeKeys::Actions),
+            "path" => Some(ActionsAttributeKeys::Path),
+            "name" => Some(ActionsAttributeKeys::Name),
+            "description" => Some(ActionsAttributeKeys::Description),
+            "default" => Some(ActionsAttributeKeys::Default),
+            "expression" => Some(ActionsAttributeKeys::Expression),
+            "required" => Some(ActionsAttributeKeys::Required),
+            "input" => Some(ActionsAttributeKeys::Input),
+            "output" => Some(ActionsAttributeKeys::Output),
+            _ => {
+                return Err(syn::Error::new(
+                    name.span(),
+                    format!("Unknown attribute: {}", name.to_string()),
+                ))
+            }
+        };
+
+        let mut value_span: Option<Span> = None;
+
+        let value = if input.peek(Token![=]) {
+            // `name = value` attributes.
+            let _assign_token = input.parse::<Token![=]>()?; // skip '='
+
+            if input.peek(LitStr) {
+                let lit: LitStr = input.parse()?;
+
+                // TODO: Is this correct?
+                if lit.value().starts_with("..")
+                    || lit.value().starts_with("./")
+                    || lit.value().starts_with("/")
+                {
+                    if let Ok(v) = std::path::PathBuf::try_from(lit.value()) {
+                        value_span = Some(lit.span());
+
+                        Some(ActionsAttributeValue::Path(v))
+                    } else {
+                        return Err(syn::Error::new(
+                            lit.span(),
+                            format!("Invalid path: {}", lit.value()),
+                        ));
+                    }
+                } else {
+                    value_span = Some(lit.span());
+                    Some(ActionsAttributeValue::String(lit.value()))
+                }
+            } else if input.peek(LitInt) {
+                let lit: LitInt = input.parse()?;
+                value_span = Some(lit.span());
+
+                Some(ActionsAttributeValue::Int(lit.base10_parse().unwrap()))
+            } else if input.peek(LitBool) {
+                let lit: LitBool = input.parse()?;
+
+                Some(ActionsAttributeValue::Bool(lit.value))
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        Ok(Self {
+            span: name,
+            key,
+            value,
+            value_span,
+        })
+    }
+}
+
+impl ActionsAttribute {
+    pub(crate) fn parse_all(all_attrs: &[Attribute]) -> Result<(String, Vec<Self>), syn::Error> {
+        let mut name = String::new();
+        let mut parsed = Vec::new();
+
+        for attribute in all_attrs {
+            // TODO: This could be nicer
+            if attribute.path().is_ident("action") {
+                name = String::from("action");
+                for attr in attribute
+                    .parse_args_with(Punctuated::<ActionsAttribute, Token![,]>::parse_terminated)?
+                {
+                    // Validate the attribute before adding it to the parsed list
+                    attr.validate()?;
+                    parsed.push(attr);
+                }
+            } else if attribute.path().is_ident("input") {
+                name = String::from("input");
+                for attr in attribute
+                    .parse_args_with(Punctuated::<ActionsAttribute, Token![,]>::parse_terminated)?
+                {
+                    // Validate the attribute before adding it to the parsed list
+                    attr.validate()?;
+                    parsed.push(attr);
+                }
+            } else if attribute.path().is_ident("output") {
+                name = String::from("output");
+                for attr in attribute
+                    .parse_args_with(Punctuated::<ActionsAttribute, Token![,]>::parse_terminated)?
+                {
+                    // Validate the attribute before adding it to the parsed list
+                    attr.validate()?;
+                    parsed.push(attr);
+                }
+            } else {
+                continue;
+            };
+        }
+        Ok((name, parsed))
+    }
+
+    #[allow(irrefutable_let_patterns)]
+    pub(crate) fn validate(&self) -> Result<(), syn::Error> {
+        match self.key {
+            Some(ActionsAttributeKeys::Path) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::Path(_) = value {
+                        // TODO: Validate path
+                        Ok(())
+                    } else if let ActionsAttributeValue::String(_) = value {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Path attribute must start with `.` or `/` (e.g. `./action.yml`)",
+                        ));
+                    } else {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Path attribute must have a string value",
+                        ));
+                    }
+                } else {
+                    return Err(syn::Error::new(
+                        self.span.span(),
+                        "Path attribute must have a string value",
+                    ));
+                }
+            }
+            Some(ActionsAttributeKeys::Name) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::String(_) = value {
+                        Ok(())
+                    } else {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Name attribute must have a string value",
+                        ));
+                    }
+                } else {
+                    return Err(syn::Error::new(
+                        self.span.span(),
+                        "Name attribute must have a string value",
+                    ));
+                }
+            }
+            Some(ActionsAttributeKeys::Required) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::Bool(_) = value {
+                        Ok(())
+                    } else {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Required attribute must have a boolean value",
+                        ));
+                    }
+                } else {
+                    Ok(())
+                }
+            }
+            _ => Ok(()),
+        }
+    }
+}
