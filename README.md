@@ -11,8 +11,7 @@
 </div>
 <!-- markdownlint-restore -->
 
-This is a Rust GitHub Actions library which should help those of us that write
-GitHub Actions in Rust.
+`GHActions` is a Rust based library for helping users write amazing GitHub Actions in Rust!
 
 ## 📦 Install
 
@@ -25,10 +24,12 @@ cargo add ghactions
 ## 📚 Features
 
 - Easy to use
-- Generate `action.yml` file automatically from code
 - Validate GitHub Actions files
-- Automatical input and output parsing
+- Automatic input and output parsing
+- Generate `action.yml` file automatically from code
+  - feature: `generate`
 - [Octocrab][octocrab] support
+  - feature: `octocrab`
 
 ## 🚀 Usage
 
