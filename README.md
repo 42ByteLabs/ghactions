@@ -69,6 +69,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Using Template (cargo-generate)
+
+You can use the [cargo-generate](cargo-generate) tool to create a new GitHub Action project with the library.
+
+```bash
+cargo generate --git https://github.com/42ByteLabs/ghactions
+```
+
 ### Using Octocrab
 
 ```rust
@@ -109,4 +117,5 @@ Please refer to [MIT][license] for the full terms.
 [crates-io]: https://crates.io/crates/ghactions
 [examples]: ./examples
 [octocrab]: https://crates.io/crates/octocrab
+[cargo-generate]: https://crates.io/crates/cargo-generate
 

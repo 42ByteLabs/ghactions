@@ -1,0 +1,8 @@
+[template]
+cargo_generate_version = ">=0.10.0"
+sub_templates = ["action-template"]
+
+[placeholders]
+action_name = { prompt = "Enter Action name", default = "my_action", type = "string" }
+description = { type="string", prompt="Description of your Action?" }
+
