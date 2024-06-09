@@ -82,7 +82,7 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
             // Generate the action.yml file if the feature is enabled
             #[cfg(feature = "generate")]
             {
-                if action.path.is_some() {
+                if let Some(_) = &action.path {
                     action
                         .write()
                         .map_err(|e| syn::Error::new(ast.span(), e.to_string()))?;
@@ -213,6 +213,11 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
             Some(ActionsAttributeKeys::Description) => {
                 if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
                     action.description = Some(value.clone());
+                }
+            }
+            Some(ActionsAttributeKeys::Image) => {
+                if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
+                    action.runs.image = Some(value.clone());
                 }
             }
             _ => {}

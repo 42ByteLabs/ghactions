@@ -25,6 +25,10 @@ pub enum ActionsError {
     #[error("Unable to parse repo reference: `{0}`")]
     RepositoryReferenceError(String),
 
+    /// IO Error
+    #[error("IO Error: `{0}`")]
+    IOError(String),
+
     /// Not Implemented
     #[error("Not Implemented")]
     NotImplemented,

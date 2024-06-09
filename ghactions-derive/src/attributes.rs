@@ -36,6 +36,8 @@ pub(crate) enum ActionsAttributeKeys {
     GitHub,
     /// Required attribute
     Required,
+    /// Docker Image
+    Image,
 }
 
 #[derive(Debug, Clone)]
@@ -69,6 +71,7 @@ impl Parse for ActionsAttribute {
             "required" => Some(ActionsAttributeKeys::Required),
             "input" => Some(ActionsAttributeKeys::Input),
             "output" => Some(ActionsAttributeKeys::Output),
+            "image" => Some(ActionsAttributeKeys::Image),
             _ => {
                 return Err(syn::Error::new(
                     name.span(),
@@ -226,6 +229,30 @@ impl ActionsAttribute {
                     }
                 } else {
                     Ok(())
+                }
+            }
+            Some(ActionsAttributeKeys::Image) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::Path(path) = value {
+                        if path.exists() {
+                            Ok(())
+                        } else {
+                            return Err(syn::Error::new(
+                                self.value_span.unwrap(),
+                                "Image attribute must have a valid path value",
+                            ));
+                        }
+                    } else {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Image attribute must have a path value",
+                        ));
+                    }
+                } else {
+                    return Err(syn::Error::new(
+                        self.span.span(),
+                        "Image attribute must have a string value",
+                    ));
                 }
             }
             _ => Ok(()),
