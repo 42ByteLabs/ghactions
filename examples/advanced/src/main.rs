@@ -5,15 +5,17 @@ use ghactions::prelude::*;
 
 #[derive(Actions, Debug, Clone)]
 #[action(
+    // Name of the Action
+    name = "My Action",
+    // Description of the Action
+    description = "My Action Description",
     // Setting the path to the action.yml file
     //
     // If the `generate` feature is enabled, the action.yml file will be generated
     // dynamically based on the struct fields
     path = "./examples/advanced/action.yml",
-    // Name of the Action
-    name = "My Action",
-    // Description of the Action
-    description = "My Action Description"
+    // Set the Docker Image for the Action
+    image = "./examples/advanced/Dockerfile",
 )]
 struct MyAction {
     /// Repository
