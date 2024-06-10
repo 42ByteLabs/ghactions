@@ -27,6 +27,7 @@ pub(crate) enum ActionsAttributeKeys {
     // Sub-attributes
     /// Path attribute
     Path,
+    /// Name / Rename
     Name,
     Description,
     Default,
@@ -70,7 +71,7 @@ impl Parse for ActionsAttribute {
             "output" => Some(ActionsAttributeKeys::Output),
             // Sub-attributes
             "path" => Some(ActionsAttributeKeys::Path),
-            "name" => Some(ActionsAttributeKeys::Name),
+            "name" | "rename" => Some(ActionsAttributeKeys::Name),
             "description" => Some(ActionsAttributeKeys::Description),
             "default" => Some(ActionsAttributeKeys::Default),
             "expression" => Some(ActionsAttributeKeys::Expression),

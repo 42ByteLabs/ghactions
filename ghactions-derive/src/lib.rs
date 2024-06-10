@@ -20,6 +20,12 @@
 //!     my_input: bool,
 //!
 //!     #[input(
+//!         name = "custom",
+//!         description = "My Custom Input",
+//!     )]
+//!     my_custom: String,
+//!
+//!     #[input(
 //!         description = "Multi Input",
 //!         split = ",",
 //!     )]
@@ -32,12 +38,14 @@
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Set the environment variables
 //!     # std::env::set_var("INPUT_MULTI_INPUT", "this,is,a,test");
+//!     # std::env::set_var("INPUT_CUSTOM", "Custom Value");
 //!
 //!     let action = MyAction::init()?;
 //!
 //!     println!("My Input   :: {}", action.my_input);
 //!
 //!     # assert_eq!(action.my_input, false);
+//!     # assert_eq!(action.my_custom, "Custom Value");
 //!     # assert_eq!(action.multi_input, vec!["this".to_string(), "is".to_string(), "a".to_string(), "test".to_string()]);
 //!
 //!     MyAction::set_output("my_output", "My Output Value")?;

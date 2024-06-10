@@ -19,7 +19,12 @@ use ghactions::prelude::*;
 )]
 struct MyAction {
     /// Repository
-    #[input(description = "Repository Name", default = "${{ github.repository }}")]
+    #[input(
+        // Rename the input field
+        name = "repo",
+        description = "Repository Name",
+        default = "${{ github.repository }}"
+    )]
     repository: String,
 
     /// GitHub Token

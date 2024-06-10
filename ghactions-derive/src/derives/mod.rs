@@ -30,6 +30,13 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
 
                         field_attributes.iter().for_each(|attr| match attr {
                             ActionsAttribute {
+                                key: Some(ActionsAttributeKeys::Name),
+                                value: Some(ActionsAttributeValue::String(name)),
+                                ..
+                            } => {
+                                input.name = Some(name.clone());
+                            }
+                            ActionsAttribute {
                                 key: Some(ActionsAttributeKeys::Description),
                                 value: Some(ActionsAttributeValue::String(description)),
                                 ..
@@ -118,10 +125,16 @@ pub(crate) fn generate_traits(
     let mut selfstream = TokenStream::new();
 
     for (name, input) in action.inputs.iter() {
-        let input_name = format!("INPUT_{}", name.to_uppercase());
+        let action_name: &String = if let Some(name) = &input.name {
+            name
+        } else {
+            name
+        };
+
+        let input_name = format!("INPUT_{}", &action_name.to_uppercase());
         let ident_input = syn::Ident::new(name, ident.span());
+
         let required = if input.required.unwrap_or(false) {
-            eprintln!("input: {:?}", input);
             quote! { ? }
         } else {
             quote! { .unwrap_or_default() }

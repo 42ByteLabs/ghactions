@@ -104,7 +104,10 @@ impl ActionYML {
 /// Action Input structure
 #[derive(Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct ActionInput {
-    /// Input Type
+    /// [internal] Input Name
+    #[serde(skip)]
+    pub name: Option<String>,
+    /// [internal] Input Type
     #[serde(skip)]
     pub r#type: String,
 
