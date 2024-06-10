@@ -26,6 +26,7 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                     "input" => {
                         let mut input = ActionInput::default();
 
+                        input.field_name = field_name.to_string();
                         input.r#type = field_type.to_token_stream().to_string();
 
                         field_attributes.iter().for_each(|attr| match attr {
@@ -34,7 +35,7 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                                 value: Some(ActionsAttributeValue::String(name)),
                                 ..
                             } => {
-                                input.name = Some(name.clone());
+                                input.action_name = name.to_string();
                             }
                             ActionsAttribute {
                                 key: Some(ActionsAttributeKeys::Description),
@@ -67,11 +68,14 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                             _ => {}
                         });
 
-                        // Use name or rename
-                        action.inputs.insert(
-                            input.name.clone().unwrap_or(field_name.to_string()).clone(),
-                            input,
-                        );
+                        // If the name is empty, use the field name
+                        if input.action_name.is_empty() {
+                            input.action_name = field_name.to_string();
+                        }
+
+                        // Needs to be the Action name as that is the name
+                        // that will be used in the action.yml file
+                        action.inputs.insert(input.action_name.to_string(), input);
                     }
                     "output" => {
                         let mut output = ActionOutput::default();
@@ -128,15 +132,9 @@ pub(crate) fn generate_traits(
 
     let mut selfstream = TokenStream::new();
 
-    for (name, input) in action.inputs.iter() {
-        let action_name: &String = if let Some(name) = &input.name {
-            name
-        } else {
-            name
-        };
-
-        let input_name = format!("INPUT_{}", &action_name.to_uppercase());
-        let ident_input = syn::Ident::new(name, ident.span());
+    for (action_name, input) in action.inputs.iter() {
+        let input_name = format!("INPUT_{}", input.action_name.to_uppercase());
+        let ident_input = syn::Ident::new(&input.field_name.clone(), ident.span());
 
         let required = if input.required.unwrap_or(false) {
             quote! { ? }
@@ -175,7 +173,10 @@ pub(crate) fn generate_traits(
             _ => {
                 return Err(syn::Error::new(
                     ident.span(),
-                    format!("Unsupported type for input {} ({})", name, input.r#type),
+                    format!(
+                        "Unsupported type for input {} ({})",
+                        action_name, input.r#type
+                    ),
                 ));
             }
         }
