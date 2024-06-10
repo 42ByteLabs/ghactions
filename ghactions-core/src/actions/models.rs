@@ -104,9 +104,12 @@ impl ActionYML {
 /// Action Input structure
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct ActionInput {
-    /// [internal] Input Name
+    /// [internal] Action Field Name
     #[serde(skip)]
-    pub name: Option<String>,
+    pub action_name: String,
+    /// [internal] Struct Field Name
+    #[serde(skip)]
+    pub field_name: String,
     /// [internal] Input Type
     #[serde(skip)]
     pub r#type: String,
