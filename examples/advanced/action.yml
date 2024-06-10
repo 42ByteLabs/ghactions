@@ -4,17 +4,17 @@
 name: My Action
 description: My Action Description
 inputs:
-  token:
-    description: GitHub Token
-    default: ${{ github.token }}
   mode:
     description: Mode
     default: 'false'
-  repository:
-    description: Repository Name
-    default: ${{ github.repository }}
   crates:
     description: Crate names (comma separated)
+  repo:
+    description: Repository Name
+    default: ${{ github.repository }}
+  token:
+    description: GitHub Token
+    default: ${{ github.token }}
 outputs:
   version:
     description: Output Version

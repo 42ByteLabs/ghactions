@@ -67,7 +67,11 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                             _ => {}
                         });
 
-                        action.inputs.insert(field_name.to_string(), input);
+                        // Use name or rename
+                        action.inputs.insert(
+                            input.name.clone().unwrap_or(field_name.to_string()).clone(),
+                            input,
+                        );
                     }
                     "output" => {
                         let mut output = ActionOutput::default();

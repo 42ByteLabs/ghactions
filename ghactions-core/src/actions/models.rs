@@ -102,7 +102,7 @@ impl ActionYML {
 }
 
 /// Action Input structure
-#[derive(Debug, PartialEq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct ActionInput {
     /// [internal] Input Name
     #[serde(skip)]
