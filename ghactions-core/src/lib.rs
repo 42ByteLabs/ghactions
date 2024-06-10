@@ -49,6 +49,17 @@ pub trait ActionTrait {
             .map_err(|_| ActionsError::InputTypeError(key.into(), "int".into()))
     }
 
+    /// Get the input value for a provided key as a vector using a seperator
+    fn get_input_vec(
+        key: impl Into<String> + Copy,
+        seperator: &str,
+    ) -> Result<Vec<String>, ActionsError> {
+        Ok(Self::get_input(key)?
+            .split(seperator)
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>())
+    }
+
     /// Set the output value for a provided key
     fn set_output(
         key: impl Into<String> + Copy,

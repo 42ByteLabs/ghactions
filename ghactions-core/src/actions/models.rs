@@ -120,6 +120,11 @@ pub struct ActionInput {
     /// Deprecation Message
     #[serde(rename = "deprecationMessage", skip_serializing_if = "Option::is_none")]
     pub deprecation_message: Option<String>,
+
+    // Other internal fields
+    /// Separator
+    #[serde(skip)]
+    pub separator: Option<String>,
 }
 
 /// Action Output structure

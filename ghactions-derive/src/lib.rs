@@ -19,20 +19,31 @@
 //!     )]
 //!     my_input: bool,
 //!
+//!     #[input(
+//!         description = "Multi Input",
+//!         split = ",",
+//!     )]
+//!     multi_input: Vec<String>,
+//!
 //!     #[output(description = "Output Value")]
 //!     my_output: String,
 //! }
 //!
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     // Set the environment variables
+//!     # std::env::set_var("INPUT_MULTI_INPUT", "this,is,a,test");
+//!
 //!     let action = MyAction::init()?;
 //!
 //!     println!("My Input   :: {}", action.my_input);
+//!
+//!     # assert_eq!(action.my_input, false);
+//!     # assert_eq!(action.multi_input, vec!["this".to_string(), "is".to_string(), "a".to_string(), "test".to_string()]);
 //!
 //!     MyAction::set_output("my_output", "My Output Value")?;
 //!
 //!     Ok(())
 //! }
-//!
 //! ```
 #![allow(dead_code, unused_imports)]
 #![deny(missing_docs)]

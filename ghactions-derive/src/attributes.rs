@@ -38,6 +38,8 @@ pub(crate) enum ActionsAttributeKeys {
     Required,
     /// Docker Image
     Image,
+    /// Separator
+    Separator,
 }
 
 #[derive(Debug, Clone)]
@@ -62,16 +64,19 @@ impl Parse for ActionsAttribute {
         let name_str = name.to_string();
 
         let key: Option<ActionsAttributeKeys> = match name_str.as_str() {
+            // Main attributes
             "actions" => Some(ActionsAttributeKeys::Actions),
+            "input" => Some(ActionsAttributeKeys::Input),
+            "output" => Some(ActionsAttributeKeys::Output),
+            // Sub-attributes
             "path" => Some(ActionsAttributeKeys::Path),
             "name" => Some(ActionsAttributeKeys::Name),
             "description" => Some(ActionsAttributeKeys::Description),
             "default" => Some(ActionsAttributeKeys::Default),
             "expression" => Some(ActionsAttributeKeys::Expression),
             "required" => Some(ActionsAttributeKeys::Required),
-            "input" => Some(ActionsAttributeKeys::Input),
-            "output" => Some(ActionsAttributeKeys::Output),
             "image" => Some(ActionsAttributeKeys::Image),
+            "separator" | "split" => Some(ActionsAttributeKeys::Separator),
             _ => {
                 return Err(syn::Error::new(
                     name.span(),
@@ -252,6 +257,23 @@ impl ActionsAttribute {
                     return Err(syn::Error::new(
                         self.span.span(),
                         "Image attribute must have a string value",
+                    ));
+                }
+            }
+            Some(ActionsAttributeKeys::Separator) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::String(_) = value {
+                        Ok(())
+                    } else {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Separator attribute must have a string value",
+                        ));
+                    }
+                } else {
+                    return Err(syn::Error::new(
+                        self.span.span(),
+                        "Separator attribute must have a string value",
                     ));
                 }
             }
