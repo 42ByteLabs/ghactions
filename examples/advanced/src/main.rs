@@ -30,6 +30,9 @@ struct MyAction {
     #[input(description = "Mode", default = "false")]
     mode: bool,
 
+    #[input(description = "Crate names (comma separated)", split = ",")]
+    crates: Vec<String>,
+
     #[output(description = "Output Version")]
     version: String,
 }
@@ -44,6 +47,8 @@ async fn main() -> Result<()> {
 
     info!("Repository: `{}`", action.repository);
     info!("My Input Mode :: `{}`", action.mode);
+    info!("My Input Crates :: `{:?}`", action.crates);
+
     info!("My Output Version :: `{}`", action.version);
 
     group!("Octocrab");

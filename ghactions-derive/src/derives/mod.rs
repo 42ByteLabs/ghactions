@@ -50,6 +50,13 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                             } => {
                                 input.default = Some(default.clone());
                             }
+                            ActionsAttribute {
+                                key: Some(ActionsAttributeKeys::Separator),
+                                value: Some(ActionsAttributeValue::String(separator)),
+                                ..
+                            } => {
+                                input.separator = Some(separator.clone());
+                            }
                             _ => {}
                         });
 
@@ -136,6 +143,15 @@ pub(crate) fn generate_traits(
             "i32" | "i64" | "u32" | "u64" => {
                 selfstream.extend(quote! {
                     #ident_input: Self::get_input_int(#input_name)
+                        #required,
+                });
+            }
+            // TODO: This hack is needed but should be fixed in the future
+            "Vec < String >" => {
+                let separator = input.separator.clone().unwrap_or_else(|| ",".to_string());
+
+                selfstream.extend(quote! {
+                    #ident_input: Self::get_input_vec(#input_name, #separator)
                         #required,
                 });
             }

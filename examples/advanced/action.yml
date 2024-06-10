@@ -7,12 +7,14 @@ inputs:
   mode:
     description: Mode
     default: 'false'
-  token:
-    description: GitHub Token
-    default: ${{ github.token }}
+  crates:
+    description: Crate names (comma separated)
   repository:
     description: Repository Name
     default: ${{ github.repository }}
+  token:
+    description: GitHub Token
+    default: ${{ github.token }}
 outputs:
   version:
     description: Output Version
