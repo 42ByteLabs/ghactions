@@ -9,8 +9,8 @@ description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
 categories = ["development-tools"]
 
-homepage = "https://github.com/GeekMasher/ghactions"
-repository = "https://github.com/GeekMasher/ghactions"
+homepage = "https://github.com/42ByteLabs/ghactions"
+repository = "https://github.com/42ByteLabs/ghactions"
 documentation = "https://docs.rs/ghactions/latest/ghactions/index.html"
 authors = ["GeekMasher"]
 
