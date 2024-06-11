@@ -38,18 +38,71 @@ Here is a simple example of how to use the library:
 ```rust
 use ghactions::prelude::*;
 
+#[derive(Actions)]
+struct MyAction {}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialise the Action
+    let action = MyAction::init()?;
+
+    group!("Main Workflow");
+
+    // Do something...
+
+    Ok(())
+}
+```
+
+### Inputs and Outputs
+
+Another feature of `ghactions` is the ability to automatically parse inputs and outputs from the action.
+
+```rust
+use ghactions::prelude::*;
+
 #[derive(Actions, Debug, Clone)]
 #[action(
+    // Action Name
     name = "My Action",
+    // Action Description
     description = "My Action Description",
+    // Action Location
+    path = "./action.yml",
 )]
 struct MyAction {
     /// My Input
-    #[input()]
-    mode: bool,
+    #[input(
+        // Change the name of the input from `my_mode` to `mode`
+        name = "mode",
+        // Input Description
+        description = "My Input Description",
+        // Default Value
+        default = "default"
+    )]
+    my_mode: String,
+
+    // Automatical type conversion
+    #[input(
+        // Input Description
+        description = "My Input Description",
+        default = "42",
+    )]
+    my_int: i32,
+
+    // Multiple Inputs
+    #[input(
+        // Input Description
+        description = "My Second Input Description",
+        // Automatically split the input by `,`
+        split = ",",
+    )]
+    mutiple: Vec<String>,
 
     // Output called `version`
-    #[output()]
+    #[output(
+        // Output Description
+        description = "My Output Description",
+    )]
     version: String,
 }
 
@@ -57,12 +110,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialise the Action
     let action = MyAction::init()?;
 
+    group!("Main Workflow");
     info!("Action :: {:?}", action);
 
-    group!("Main Workflow");
-
-    info!("My Input Mode :: `{}`", action.mode);
+    info!("My Input Mode :: `{}`", action.my_mode);
+    info!("My Multiple Input :: `{:?}`", action.mutiple);
     info!("My Output Version :: `{}`", action.version);
+
+    groupend!();
+
+    group!("Set Outputs");
+
+    MyAction::set_output("version", "1.0.0")?;
+    // Or the Macro
+    setoutput!("version", "1.0.0");
 
     groupend!();
 
