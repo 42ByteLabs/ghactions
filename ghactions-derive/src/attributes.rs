@@ -245,7 +245,7 @@ impl ActionsAttribute {
                         } else {
                             return Err(syn::Error::new(
                                 self.value_span.unwrap(),
-                                "Image attribute must have a valid path value",
+                                "Image attribute must have a valid path value (file not found)",
                             ));
                         }
                     } else {
