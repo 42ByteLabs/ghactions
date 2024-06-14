@@ -20,7 +20,7 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                 let field_name = field.ident.as_ref().unwrap();
                 let field_type = &field.ty;
 
-                let (name, field_attributes) = ActionsAttribute::parse_all(&field.attrs).unwrap();
+                let (name, field_attributes) = ActionsAttribute::parse_all(&field.attrs)?;
 
                 match name.as_str() {
                     "input" => {

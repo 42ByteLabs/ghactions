@@ -72,5 +72,8 @@ use syn::{parse_macro_input, DeriveInput};
 pub fn actions(input: TokenStream) -> TokenStream {
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
 
-    derives::derive_parser(&ast).unwrap().into()
+    match derives::derive_parser(&ast) {
+        Ok(tokens) => tokens.into(),
+        Err(err) => err.to_compile_error().into(),
+    }
 }
