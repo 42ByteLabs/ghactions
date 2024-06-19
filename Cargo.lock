@@ -391,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions"
-version = "0.9.8"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "dotenvy",
@@ -405,7 +405,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions-core"
-version = "0.9.8"
+version = "0.10.0"
 dependencies = [
  "env_logger",
  "ghactions",
@@ -421,7 +421,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions-derive"
-version = "0.9.8"
+version = "0.10.0"
 dependencies = [
  "dotenvy",
  "ghactions",
