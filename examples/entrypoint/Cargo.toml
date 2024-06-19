@@ -1,5 +1,5 @@
 [package]
-name = "basic-compile"
+name = "entrypoint"
 version = "0.9.5"
 edition = "2021"
 

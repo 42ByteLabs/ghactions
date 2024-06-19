@@ -15,4 +15,4 @@ runs:
   steps:
   - id: entrypoint-script
     shell: bash
-    run: ${{ github.action_path }}/examples/entrypoint/entrypoint.sh
+    run: ${{ github.action_path }}/examples/advanced-compile/entrypoint.sh

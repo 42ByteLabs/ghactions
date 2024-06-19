@@ -15,7 +15,7 @@ use ghactions::prelude::*;
     // dynamically based on the struct fields
     path = "./examples/advanced-compile/action.yml",
     // Setting the entrypoint for the action
-    entrypoint = "./examples/advanced-compile/entrypoint.sh",
+    entrypoint = "./examples/entrypoint/entrypoint.sh",
 )]
 struct MyAction {
     #[input(description = "Crate names (comma separated)", split = ",")]

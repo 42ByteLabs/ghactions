@@ -79,6 +79,6 @@ path = "./examples/advanced/src/main.rs"
 required-features = ["dotenvy", "generate"]
 
 [[example]]
-name = "advanced-compile"
-path = "./examples/advanced-compile/src/main.rs"
+name = "entrypoint"
+path = "./examples/entrypoint/src/main.rs"
 required-features = ["dotenvy", "generate"]
