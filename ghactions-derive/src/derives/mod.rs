@@ -79,6 +79,13 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                     }
                     "output" => {
                         let mut output = ActionOutput::default();
+                        // Step ID is required for composite action outputs
+                        if let Some(ref step_id) = action.output_value_step_id {
+                            output.value = Some(format!(
+                                "${{{{ steps.{}.outputs.random-number }}}}",
+                                step_id
+                            ));
+                        }
 
                         match field_attributes
                             .iter()
@@ -251,7 +258,34 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
             }
             Some(ActionsAttributeKeys::Image) => {
                 if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
-                    action.runs.image = Some(value.clone());
+                    action.set_container_image(value.to_path_buf());
+                }
+            }
+            Some(ActionsAttributeKeys::Entrypoint) => {
+                if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
+                    action.runs.using = "composite".to_string();
+
+                    let shell = if value.extension().unwrap_or_default() == "ps1" {
+                        "pwsh".to_string()
+                    } else {
+                        // Default to bash
+                        "bash".to_string()
+                    };
+
+                    // Remove the leading `./` from the path
+                    // TODO: This is a hack and should be fixed
+                    let entrypoint = value.display().to_string().replace("./", "");
+                    let run: String = format!("${{{{ github.action_path }}}}/{}", entrypoint);
+
+                    action.runs.steps =
+                        Some(vec![ghactions_core::actions::models::ActionRunStep {
+                            id: Some("entrypoint-script".to_string()),
+                            shell: Some(shell),
+                            run: Some(run),
+                            ..Default::default()
+                        }]);
+
+                    action.output_value_step_id = Some("entrypoint-script".to_string());
                 }
             }
             _ => {}

@@ -19,12 +19,5 @@ outputs:
   version:
     description: Output Version
 runs:
-  using: composite
+  using: docker
   image: ./examples/advanced/Dockerfile
-  steps:
-  - name: Checking for Cargo/Rust
-    shell: bash
-    run: ''
-  - id: cargo-run
-    shell: bash
-    run: cargo run --target-dir /home/geekmasher/development/42bytelabs/ghactions/ghactions-core

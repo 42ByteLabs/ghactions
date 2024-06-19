@@ -35,6 +35,9 @@ pub struct ActionYML {
     pub inputs: IndexMap<String, ActionInput>,
     /// Action Outputs
     pub outputs: IndexMap<String, ActionOutput>,
+    /// Output Value Step ID
+    #[serde(skip)]
+    pub output_value_step_id: Option<String>,
 
     /// Action Runs
     pub runs: ActionRuns,
@@ -50,12 +53,20 @@ impl Default for ActionYML {
             branding: None,
             inputs: IndexMap::new(),
             outputs: IndexMap::new(),
+            output_value_step_id: None,
             runs: ActionRuns::default(),
         }
     }
 }
 
 impl ActionYML {
+    /// Set the Action to a Container Image based Action
+    pub fn set_container_image(&mut self, image: PathBuf) {
+        self.runs.using = "docker".to_string();
+        self.runs.image = Some(image);
+        self.runs.steps = None;
+    }
+
     /// Load the Action YAML file
     pub fn load_action(path: String) -> Result<ActionYML, Box<dyn std::error::Error>> {
         let fhandle = std::fs::File::open(&path)?;
@@ -140,6 +151,10 @@ pub struct ActionOutput {
     /// Output Description
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+
+    /// Output Value
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
 }
 
 /// Action Branding
@@ -158,20 +173,66 @@ pub struct ActionBranding {
 pub struct ActionRuns {
     /// Action Name
     pub using: String,
-    /// Docker Image
+
+    /// Container Image (container actions only)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub image: Option<PathBuf>,
-    /// Docker Arguments
+    /// Arguments (container actions only)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<String>>,
+
+    /// Steps (composite actions only)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub steps: Option<Vec<ActionRunStep>>,
 }
 
 impl Default for ActionRuns {
     fn default() -> Self {
         Self {
-            using: String::from("docker"),
-            image: Some(PathBuf::from("./Dockerfile")),
+            using: String::from("composite"),
+            image: None,
             args: None,
+            steps: Some(default_composite_steps()),
         }
     }
+}
+
+fn default_composite_steps() -> Vec<ActionRunStep> {
+    vec![
+        // Step 1 - Checking for Cargo/Rust (needs to be installed by the user)
+        ActionRunStep {
+            name: Some("Checking for Cargo/Rust".to_string()),
+            shell: Some("bash".to_string()),
+            run: Some("".to_string()),
+            ..Default::default()
+        },
+        // Step 2 - Compile the Action
+        ActionRunStep {
+            id: Some("cargo-run".to_string()),
+            shell: Some("bash".to_string()),
+            run: Some(format!("cargo run --target-dir {}", GHACTIONS_ROOT)),
+            ..Default::default()
+        },
+    ]
+}
+
+/// Action Run Step
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ActionRunStep {
+    /// Step ID
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// Step Name
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Shell to use (if any)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shell: Option<String>,
+    /// Run command
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub run: Option<String>,
+
+    /// Environment Variables
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub env: Option<HashMap<String, String>>,
 }
