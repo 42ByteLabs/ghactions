@@ -124,5 +124,20 @@ macro_rules! groupend {
 #[macro_export(local_inner_macros)]
 macro_rules! setoutput {
     // setoutput!("name", "value")
-    ($($arg:tt)+) => (::log::log!(::log::Level::Info, "::set-output name={}::{}", $($arg)+))
+    ($($arg:tt)+) => {
+        {
+            use std::io::Write;
+            let output = ::std::format!("::set-output name={}::{}", $($arg)+);
+            ::log::log!(::log::Level::Info, "{}", output);
+            let output_file = std::env::var("GITHUB_OUTPUT").unwrap_or_else(|_| "/tmp/github_actions.env".to_string());
+            // Append to the file
+            let mut file = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(output_file)
+                .unwrap();
+            // Append to end of file
+            ::std::writeln!(file, "{}", output).unwrap();
+        }
+    }
 }
