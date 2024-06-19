@@ -59,7 +59,7 @@ impl Default for ActionYML {
             branding: None,
             inputs: IndexMap::new(),
             outputs: IndexMap::new(),
-            output_value_step_id: None,
+            output_value_step_id: Some("cargo-run".to_string()),
             runs: ActionRuns::default(),
         }
     }
@@ -71,6 +71,8 @@ impl ActionYML {
         self.runs.using = ActionRunUsing::Docker;
         self.runs.image = Some(image);
         self.runs.steps = None;
+        // Docker based action doesn't need to set the output value step id
+        self.output_value_step_id = None;
     }
 
     /// Load the Action YAML file
@@ -204,19 +206,29 @@ impl Default for ActionRuns {
 }
 
 fn default_composite_steps() -> Vec<ActionRunStep> {
+    // Binary Name
+    let binary_name = std::env::var("CARGO_BIN_NAME").unwrap();
     vec![
         // Step 1 - Checking for Cargo/Rust (needs to be installed by the user)
-        ActionRunStep {
-            name: Some("Checking for Cargo/Rust".to_string()),
-            shell: Some("bash".to_string()),
-            run: Some("".to_string()),
-            ..Default::default()
-        },
+        // ActionRunStep {
+        //     name: Some("Checking for Cargo/Rust".to_string()),
+        //     shell: Some("bash".to_string()),
+        //     run: Some("".to_string()),
+        //     ..Default::default()
+        // },
         // Step 2 - Compile the Action
         ActionRunStep {
-            id: Some("cargo-run".to_string()),
+            name: Some("Compile / Install the Action binary".to_string()),
             shell: Some("bash".to_string()),
-            run: Some(format!("cargo run --target-dir {}", GHACTIONS_ROOT)),
+            run: Some("set -e\ncargo install --path \"${{ github.action_path }}\"".to_string()),
+            ..Default::default()
+        },
+        // Step 3 - Run the Action
+        ActionRunStep {
+            id: Some("cargo-run".to_string()),
+            name: Some("Run the Action".to_string()),
+            shell: Some("bash".to_string()),
+            run: Some(format!("set -e\n{}", binary_name)),
             ..Default::default()
         },
     ]

@@ -266,7 +266,17 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
                 }
             }
             Some(ActionsAttributeKeys::Entrypoint) => {
-                if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
+                if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    if value.is_empty() {
+                        return Err(syn::Error::new(
+                            attr.value_span.unwrap(),
+                            "Entrypoint cannot be empty",
+                        ));
+                    }
+                    if action.runs.using == ActionRunUsing::Docker {
+                        action.runs.args = Some(vec![value.clone()]);
+                    }
+                } else if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
                     action.runs.using = ActionRunUsing::Composite;
 
                     let shell = if value.extension().unwrap_or_default() == "ps1" {

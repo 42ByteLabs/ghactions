@@ -82,3 +82,8 @@ required-features = ["dotenvy", "generate"]
 name = "entrypoint"
 path = "./examples/entrypoint/src/main.rs"
 required-features = ["dotenvy", "generate"]
+
+[[example]]
+name = "jit-compile"
+path = "./examples/jit-compile/src/main.rs"
+required-features = ["dotenvy", "generate"]

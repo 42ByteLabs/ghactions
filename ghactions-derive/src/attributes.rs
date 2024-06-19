@@ -275,6 +275,8 @@ impl ActionsAttribute {
                                 "Entrypoint attribute must have a valid path value (file not found)",
                             ));
                         }
+                    } else if let ActionsAttributeValue::String(_) = value {
+                        Ok(())
                     } else {
                         return Err(syn::Error::new(
                             self.value_span.unwrap(),
