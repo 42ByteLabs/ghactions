@@ -77,3 +77,8 @@ required-features = ["dotenvy"]
 name = "advanced"
 path = "./examples/advanced/src/main.rs"
 required-features = ["dotenvy", "generate"]
+
+[[example]]
+name = "advanced-compile"
+path = "./examples/advanced-compile/src/main.rs"
+required-features = ["dotenvy", "generate"]
