@@ -3,7 +3,10 @@ use quote::{quote, ToTokens};
 use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Fields};
 
 use crate::attributes::{ActionsAttribute, ActionsAttributeKeys, ActionsAttributeValue};
-use ghactions_core::{actions::models::ActionOutput, ActionInput, ActionYML};
+use ghactions_core::{
+    actions::models::{ActionOutput, ActionRunUsing},
+    ActionInput, ActionYML,
+};
 
 pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let name = &ast.ident;
@@ -264,7 +267,7 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
             }
             Some(ActionsAttributeKeys::Entrypoint) => {
                 if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
-                    action.runs.using = "composite".to_string();
+                    action.runs.using = ActionRunUsing::Composite;
 
                     let shell = if value.extension().unwrap_or_default() == "ps1" {
                         "pwsh".to_string()

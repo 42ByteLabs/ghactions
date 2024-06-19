@@ -1,8 +1,14 @@
 //! # Models
 
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, io::Write, os::unix::fs::FileExt, path::PathBuf};
+use serde::{Deserialize, Serialize, Serializer};
+use std::{
+    collections::HashMap,
+    fmt::{Display, Formatter},
+    io::Write,
+    os::unix::fs::FileExt,
+    path::PathBuf,
+};
 
 use crate::ActionsError;
 
@@ -62,7 +68,7 @@ impl Default for ActionYML {
 impl ActionYML {
     /// Set the Action to a Container Image based Action
     pub fn set_container_image(&mut self, image: PathBuf) {
-        self.runs.using = "docker".to_string();
+        self.runs.using = ActionRunUsing::Docker;
         self.runs.image = Some(image);
         self.runs.steps = None;
     }
@@ -172,7 +178,7 @@ pub struct ActionBranding {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ActionRuns {
     /// Action Name
-    pub using: String,
+    pub using: ActionRunUsing,
 
     /// Container Image (container actions only)
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -189,7 +195,7 @@ pub struct ActionRuns {
 impl Default for ActionRuns {
     fn default() -> Self {
         Self {
-            using: String::from("composite"),
+            using: ActionRunUsing::Composite,
             image: None,
             args: None,
             steps: Some(default_composite_steps()),
@@ -214,6 +220,43 @@ fn default_composite_steps() -> Vec<ActionRunStep> {
             ..Default::default()
         },
     ]
+}
+
+/// Action Run Using Enum
+#[derive(Debug, PartialEq, Deserialize)]
+pub enum ActionRunUsing {
+    /// Docker / Container Image
+    Docker,
+    /// Composite Action
+    Composite,
+}
+
+impl From<&str> for ActionRunUsing {
+    fn from(value: &str) -> Self {
+        match value {
+            "docker" => ActionRunUsing::Docker,
+            "composite" => ActionRunUsing::Composite,
+            _ => ActionRunUsing::Composite,
+        }
+    }
+}
+
+impl From<String> for ActionRunUsing {
+    fn from(value: String) -> Self {
+        Self::from(value.as_str())
+    }
+}
+
+impl Serialize for ActionRunUsing {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            ActionRunUsing::Docker => serializer.serialize_str("docker"),
+            ActionRunUsing::Composite => serializer.serialize_str("composite"),
+        }
+    }
 }
 
 /// Action Run Step
