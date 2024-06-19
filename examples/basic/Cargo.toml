@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ghactions = { version = "^0.9", path = "../../", features = [ "dotenvy" ] }
+ghactions = { version = "^0.9", path = "../../", features = [ "dotenvy", "octocrab" ] }
+octocrab = "0.38"
 anyhow = "1"
 log = "0.4"
 tokio = { version = "^1.38", features = [ "full" ] } 
