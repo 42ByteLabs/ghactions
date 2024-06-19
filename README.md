@@ -117,10 +117,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     groupend!();
 
+    // There are 3 ways to set the output
     group!("Set Outputs");
 
+    // Using the dynamically name Action method
+    action.set_version("1.0.0");
+    // Using the `set_output` method
     MyAction::set_output("version", "1.0.0")?;
-    // Or the Macro
+    // Or the Macro `setoutput!` directly
     setoutput!("version", "1.0.0");
 
     groupend!();
