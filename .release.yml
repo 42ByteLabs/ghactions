@@ -1,6 +1,6 @@
 name: "ghactions"
 repository: "42ByteLabs/ghactions"
-version: 0.10.0
+version: 0.10.1
 default: false
 
 locations:
