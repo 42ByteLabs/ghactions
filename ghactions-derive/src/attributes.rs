@@ -41,6 +41,8 @@ pub(crate) enum ActionsAttributeKeys {
     Image,
     /// Separator
     Separator,
+    /// Entrypoint
+    Entrypoint,
 }
 
 #[derive(Debug, Clone)]
@@ -77,6 +79,7 @@ impl Parse for ActionsAttribute {
             "expression" => Some(ActionsAttributeKeys::Expression),
             "required" => Some(ActionsAttributeKeys::Required),
             "image" => Some(ActionsAttributeKeys::Image),
+            "entrypoint" => Some(ActionsAttributeKeys::Entrypoint),
             "separator" | "split" => Some(ActionsAttributeKeys::Separator),
             _ => {
                 return Err(syn::Error::new(
@@ -258,6 +261,32 @@ impl ActionsAttribute {
                     return Err(syn::Error::new(
                         self.span.span(),
                         "Image attribute must have a string value",
+                    ));
+                }
+            }
+            Some(ActionsAttributeKeys::Entrypoint) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::Path(path) = value {
+                        if path.exists() {
+                            Ok(())
+                        } else {
+                            return Err(syn::Error::new(
+                                self.value_span.unwrap(),
+                                "Entrypoint attribute must have a valid path value (file not found)",
+                            ));
+                        }
+                    } else if let ActionsAttributeValue::String(_) = value {
+                        Ok(())
+                    } else {
+                        return Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Entrypoint attribute must have a path value",
+                        ));
+                    }
+                } else {
+                    return Err(syn::Error::new(
+                        self.span.span(),
+                        "Entrypoint attribute must have a string value",
                     ));
                 }
             }

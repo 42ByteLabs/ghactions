@@ -3,7 +3,10 @@ use quote::{quote, ToTokens};
 use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Fields};
 
 use crate::attributes::{ActionsAttribute, ActionsAttributeKeys, ActionsAttributeValue};
-use ghactions_core::{actions::models::ActionOutput, ActionInput, ActionYML};
+use ghactions_core::{
+    actions::models::{ActionOutput, ActionRunUsing},
+    ActionInput, ActionYML,
+};
 
 pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error> {
     let name = &ast.ident;
@@ -79,6 +82,14 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                     }
                     "output" => {
                         let mut output = ActionOutput::default();
+                        // Step ID is required for composite action outputs
+                        if let Some(ref step_id) = action.output_value_step_id {
+                            output.value = Some(format!(
+                                "${{{{ steps.{}.outputs.{} }}}}",
+                                step_id,
+                                field_name.to_string()
+                            ));
+                        }
 
                         match field_attributes
                             .iter()
@@ -251,7 +262,44 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
             }
             Some(ActionsAttributeKeys::Image) => {
                 if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
-                    action.runs.image = Some(value.clone());
+                    action.set_container_image(value.to_path_buf());
+                }
+            }
+            Some(ActionsAttributeKeys::Entrypoint) => {
+                if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    if value.is_empty() {
+                        return Err(syn::Error::new(
+                            attr.value_span.unwrap(),
+                            "Entrypoint cannot be empty",
+                        ));
+                    }
+                    if action.runs.using == ActionRunUsing::Docker {
+                        action.runs.args = Some(vec![value.clone()]);
+                    }
+                } else if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
+                    action.runs.using = ActionRunUsing::Composite;
+
+                    let shell = if value.extension().unwrap_or_default() == "ps1" {
+                        "pwsh".to_string()
+                    } else {
+                        // Default to bash
+                        "bash".to_string()
+                    };
+
+                    // Remove the leading `./` from the path
+                    // TODO: This is a hack and should be fixed
+                    let entrypoint = value.display().to_string().replace("./", "");
+                    let run: String = format!("${{{{ github.action_path }}}}/{}", entrypoint);
+
+                    action.runs.steps =
+                        Some(vec![ghactions_core::actions::models::ActionRunStep {
+                            id: Some("entrypoint-script".to_string()),
+                            shell: Some(shell),
+                            run: Some(run),
+                            ..Default::default()
+                        }]);
+
+                    action.output_value_step_id = Some("entrypoint-script".to_string());
                 }
             }
             _ => {}
