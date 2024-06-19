@@ -13,7 +13,7 @@ use ghactions::prelude::*;
     //
     // If the `generate` feature is enabled, the action.yml file will be generated
     // dynamically based on the struct fields
-    path = "./examples/advanced-compile/action.yml",
+    path = "./examples/entrypoint/action.yml",
     // Setting the entrypoint for the action
     entrypoint = "./examples/entrypoint/entrypoint.sh",
 )]
