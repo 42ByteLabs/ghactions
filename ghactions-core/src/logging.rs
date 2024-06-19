@@ -114,7 +114,7 @@ macro_rules! groupend {
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust
 /// use ghactions::setoutput;
 ///
 /// # fn foo() {
@@ -128,7 +128,11 @@ macro_rules! setoutput {
         {
             use std::io::Write;
             let output = ::std::format!("::set-output name={}::{}", $($arg)+);
-            ::log::log!(::log::Level::Info, "{}", output);
+            #[cfg(feature = "log")]
+            {
+                ::log::log!(::log::Level::Info, "{}", output);
+            }
+
             let output_file = std::env::var("GITHUB_OUTPUT").unwrap_or_else(|_| "/tmp/github_actions.env".to_string());
             // Append to the file
             let mut file = std::fs::OpenOptions::new()
