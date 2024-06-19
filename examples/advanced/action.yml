@@ -10,11 +10,11 @@ inputs:
   token:
     description: GitHub Token
     default: ${{ github.token }}
-  crates:
-    description: Crate names (comma separated)
   mode:
     description: Mode
     default: 'false'
+  crates:
+    description: Crate names (comma separated)
 outputs:
   version:
     description: Output Version

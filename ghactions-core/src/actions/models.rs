@@ -1,5 +1,6 @@
 //! # Models
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, io::Write, os::unix::fs::FileExt, path::PathBuf};
 
@@ -31,9 +32,9 @@ pub struct ActionYML {
     pub branding: Option<ActionBranding>,
 
     /// Action Inputs
-    pub inputs: HashMap<String, ActionInput>,
+    pub inputs: IndexMap<String, ActionInput>,
     /// Action Outputs
-    pub outputs: HashMap<String, ActionOutput>,
+    pub outputs: IndexMap<String, ActionOutput>,
 
     /// Action Runs
     pub runs: ActionRuns,
@@ -47,8 +48,8 @@ impl Default for ActionYML {
             description: None,
             author: None,
             branding: None,
-            inputs: HashMap::new(),
-            outputs: HashMap::new(),
+            inputs: IndexMap::new(),
+            outputs: IndexMap::new(),
             runs: ActionRuns::default(),
         }
     }
