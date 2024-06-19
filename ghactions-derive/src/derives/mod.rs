@@ -1,6 +1,9 @@
+use helpers::generate_helpers;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Fields};
+
+mod helpers;
 
 use crate::attributes::{ActionsAttribute, ActionsAttributeKeys, ActionsAttributeValue};
 use ghactions_core::{
@@ -110,7 +113,9 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                 }
             }
 
-            let tokens = generate_traits(name, &fields, &ast.generics, &action)?;
+            let mut tokens = generate_traits(name, &fields, &ast.generics, &action)?;
+
+            tokens.extend(generate_helpers(name, &fields, &ast.generics, &action)?);
 
             // Generate the action.yml file if the feature is enabled
             #[cfg(feature = "generate")]
