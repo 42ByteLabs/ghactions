@@ -82,8 +82,9 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                         // Step ID is required for composite action outputs
                         if let Some(ref step_id) = action.output_value_step_id {
                             output.value = Some(format!(
-                                "${{{{ steps.{}.outputs.random-number }}}}",
-                                step_id
+                                "${{{{ steps.{}.outputs.{} }}}}",
+                                step_id,
+                                field_name.to_string()
                             ));
                         }
 
