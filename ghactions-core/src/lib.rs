@@ -74,12 +74,24 @@ pub trait ActionTrait {
     }
 
     /// Get the Octocrab instance
+    ///
+    /// Uses the `GITHUB_API_URL` and `GITHUB_TOKEN` environment variable to create an Octocrab instance
     #[cfg(feature = "octocrab")]
     fn octocrab(&self) -> Result<octocrab::Octocrab, ActionsError> {
+        #[cfg(feature = "log")]
+        {
+            log::debug!("Creating Octocrab instance");
+            log::debug!("URL: {}", self.get_api_url());
+        }
+
         match self.get_token() {
             Ok(token) => Ok(octocrab::Octocrab::builder()
-                .base_uri(self.get_server_url())
+                .base_uri(self.get_api_url())
                 .map_err(|e| ActionsError::OctocrabError(e.to_string()))?
+                .add_header(
+                    http::header::ACCEPT,
+                    "application/vnd.github.v3+json".to_string(),
+                )
                 .personal_token(token)
                 .build()
                 .map_err(|e| ActionsError::OctocrabError(e.to_string()))?),
@@ -88,8 +100,12 @@ pub trait ActionTrait {
                 log::warn!("No GitHub Token provided");
 
                 Ok(octocrab::Octocrab::builder()
-                    .base_uri(self.get_server_url())
+                    .base_uri(self.get_api_url())
                     .map_err(|e| ActionsError::OctocrabError(e.to_string()))?
+                    .add_header(
+                        http::header::ACCEPT,
+                        "application/vnd.github.v3+json".to_string(),
+                    )
                     .build()
                     .map_err(|e| ActionsError::OctocrabError(e.to_string()))?)
             }
@@ -100,9 +116,14 @@ pub trait ActionTrait {
     fn get_server_url(&self) -> String {
         Self::get_input("GITHUB_SERVER_URL").unwrap_or_else(|_| "https://github.com".into())
     }
-    /// GitHub API URL
+    /// GitHub API URL (default: https://api.github.com)
     fn get_api_url(&self) -> String {
         Self::get_input("GITHUB_API_URL").unwrap_or_else(|_| "https://api.github.com".into())
+    }
+    /// GitHub GraphQL URL (default: https://api.github.com/graphql)
+    fn get_graphql_url(&self) -> String {
+        Self::get_input("GITHUB_GRAPHQL_URL")
+            .unwrap_or_else(|_| "https://api.github.com/graphql".into())
     }
 
     /// Get the GitHub Token

@@ -397,7 +397,9 @@ dependencies = [
  "dotenvy",
  "ghactions-core",
  "ghactions-derive",
+ "http",
  "log",
+ "octocrab",
  "tokio",
 ]
 
@@ -407,6 +409,7 @@ version = "0.9.6"
 dependencies = [
  "env_logger",
  "ghactions",
+ "http",
  "log",
  "octocrab",
  "serde",

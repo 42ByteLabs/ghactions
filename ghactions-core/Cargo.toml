@@ -20,7 +20,7 @@ tag-name = "v{{version}}"
 default = ["log", "macros", "octocrab"]
 log = ["dep:log", "dep:env_logger"]
 macros = []
-octocrab = ["dep:octocrab"]
+octocrab = ["dep:octocrab", "dep:http"]
 
 [dependencies]
 thiserror = "1"
@@ -30,7 +30,8 @@ serde_yaml = "0.9"
 log = { version = "0.4", optional = true }
 env_logger = { version = "0.11", optional = true }
 # GitHub API
-octocrab = { version = "0.38", optional = true }
+octocrab = { version = "^0.38", optional = true }
+http = { version = "^1", optional = true }
 time = "0.3.36"
 
 [dev-dependencies]
