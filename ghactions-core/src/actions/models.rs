@@ -207,7 +207,7 @@ impl Default for ActionRuns {
 
 fn default_composite_steps() -> Vec<ActionRunStep> {
     // Binary Name
-    let binary_name = std::env::var("CARGO_BIN_NAME").unwrap();
+    let binary_name = std::env::var("CARGO_BIN_NAME").unwrap_or_else(|_| "action".to_string());
     vec![
         // Step 1 - Checking for Cargo/Rust (needs to be installed by the user)
         // ActionRunStep {
