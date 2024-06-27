@@ -3,7 +3,7 @@ resolver = "2"
 members = [".", "ghactions-core", "ghactions-derive"]
 
 [workspace.package]
-version = "0.10.1"
+version = "0.10.2"
 license = "MIT"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
