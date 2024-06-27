@@ -10,6 +10,9 @@ pub use ghactions_core::ActionsError;
 pub use ghactions_core::{errorf, group, groupend, setoutput};
 pub use ghactions_derive::Actions;
 
+#[cfg(feature = "cache")]
+pub use ghactions_core::Cache;
+
 /// Prelude module to re-export the most commonly used types
 pub mod prelude {
     // Derive Macros

@@ -9,6 +9,8 @@ extern crate log;
 pub mod actions;
 pub mod errors;
 // pub mod ghaction;
+#[cfg(feature = "cache")]
+pub mod cache;
 #[cfg(feature = "log")]
 pub mod logging;
 pub mod repository;
@@ -16,6 +18,9 @@ pub mod repository;
 pub use crate::actions::models::{ActionInput, ActionRuns, ActionYML};
 pub use crate::errors::ActionsError;
 pub use crate::repository::reference::RepositoryReference;
+
+#[cfg(feature = "cache")]
+pub use cache::Cache;
 
 /// Action Trait
 pub trait ActionTrait {

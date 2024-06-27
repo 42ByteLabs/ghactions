@@ -49,6 +49,8 @@ dotenvy = ["ghactions-derive/dotenvy"]
 macros = ["ghactions-core/macros"]
 # Octocrab
 octocrab = ["ghactions-core/octocrab"]
+# Action Caching
+cache = ["ghactions-core/cache"]
 
 [dependencies]
 ghactions-core = { version = "^0.10", path = "ghactions-core" }
