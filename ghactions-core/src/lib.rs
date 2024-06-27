@@ -134,6 +134,23 @@ pub trait ActionTrait {
     fn get_sha(&self) -> Result<String, ActionsError> {
         Self::get_input("GITHUB_SHA")
     }
+    /// Get the GitHub Ref (full)
+    fn get_ref(&self) -> Result<String, ActionsError> {
+        Self::get_input("GITHUB_REF")
+    }
+    /// Get the GitHub Ref Type
+    fn get_ref_type(&self) -> Result<String, ActionsError> {
+        Self::get_input("GITHUB_REF_TYPE")
+    }
+    /// Get the GitHub Ref Name
+    fn get_ref_name(&self) -> Result<String, ActionsError> {
+        Self::get_input("GITHUB_REF_NAME")
+    }
+
+    /// Get the GitHub Workflow Event Name
+    fn get_event_name(&self) -> Result<String, ActionsError> {
+        Self::get_input("GITHUB_EVENT_NAME")
+    }
 
     /// Get the full GitHub Repository (owner/repo)
     fn get_repository(&self) -> Result<String, ActionsError> {
@@ -141,7 +158,10 @@ pub trait ActionTrait {
     }
     /// Get the GitHub Repository owner name (org/user)
     fn get_repository_owner(&self) -> Result<String, ActionsError> {
-        Self::get_input("GITHUB_OWNER")
+        Self::get_input("GITHUB_REPOSITORY_OWNER").or_else(|_| {
+            self.get_repository()
+                .map(|r| r.split('/').collect::<Vec<&str>>()[0].to_string())
+        })
     }
     /// Get the GitHub Repository name
     fn get_repository_name(&self) -> Result<String, ActionsError> {

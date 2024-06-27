@@ -71,7 +71,7 @@ tokio = { version = "1.38", default-features = false, features = [
 [[example]]
 name = "basic"
 path = "./examples/basic/src/main.rs"
-required-features = ["dotenvy"]
+required-features = ["dotenvy", "octocrab"]
 
 [[example]]
 name = "advanced"
