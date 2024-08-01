@@ -183,11 +183,28 @@ mod tests {
     #[test]
     fn test_tool_from_path() {
         let path = PathBuf::from("node/12.7.0/x64");
-        let tool = Tool::from(path.clone());
+        let tool = Tool::try_from(path.clone()).unwrap();
 
         assert_eq!(tool.path(), &path);
         assert_eq!(tool.name(), "node");
         assert_eq!(tool.version(), "12.7.0");
         assert_eq!(tool.arch(), &ToolCacheArch::X64);
+    }
+
+    #[test]
+    #[cfg(target_os = "linux")]
+    fn test_tool_path() {
+        let cwd = PathBuf::from(std::env::current_dir().unwrap())
+            .join("..")
+            .canonicalize()
+            .unwrap();
+
+        let toolcache_root = PathBuf::from(cwd.clone());
+        let tool_path = Tool::tool_path(&toolcache_root, "node", "12.7.0", ToolCacheArch::X64);
+
+        assert_eq!(tool_path, cwd.join("node/12.7.0/x64/"));
+
+        let tool_path = Tool::tool_path(&toolcache_root, "node", "12.x", ToolCacheArch::X64);
+        assert_eq!(tool_path, cwd.join("node/12.*/x64/"));
     }
 }

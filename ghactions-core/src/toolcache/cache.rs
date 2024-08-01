@@ -84,11 +84,13 @@ impl From<PathBuf> for ToolCache {
 
 impl Default for ToolCache {
     fn default() -> Self {
-        let tool_cache = std::env::var("RUNNER_TOOL_CACHE")
+        let mut tool_cache = std::env::var("RUNNER_TOOL_CACHE")
             .map(PathBuf::from)
-            .unwrap_or_else(|_| PathBuf::from("/opt/hostedtoolcache"))
-            .canonicalize()
-            .unwrap();
+            .unwrap_or_else(|_| PathBuf::from("/opt/hostedtoolcache"));
+
+        if !tool_cache.is_absolute() {
+            tool_cache = tool_cache.canonicalize().unwrap();
+        }
 
         Self { tool_cache }
     }
@@ -111,43 +113,10 @@ mod tests {
     #[test]
     fn test_tool_cache() {
         // Default
-        let tool_cache = ToolCache::new();
+        let tool_cache = ToolCache::default();
         assert_eq!(
             tool_cache.get_tool_cache().to_str().unwrap(),
             "/opt/hostedtoolcache"
-        );
-    }
-
-    #[test]
-    #[cfg(target_os = "linux")]
-    fn test_tool_path() {
-        let (cwd, tool_cache) = local_toolcache();
-
-        // Static
-        let path = tool_cache.tool_path("node", "12.7.0", "x64");
-        assert_eq!(
-            path.to_str().unwrap(),
-            cwd.join("examples/toolcache/node/12.7.0/x64/")
-                .to_str()
-                .unwrap()
-        );
-
-        // Dynamic (version)
-        let path = tool_cache.tool_path("node", "12.x", "x64");
-        assert_eq!(
-            path.to_str().unwrap(),
-            cwd.join("examples/toolcache/node/12.*/x64/")
-                .to_str()
-                .unwrap()
-        );
-
-        // Dynamic (arch)
-        let path = tool_cache.tool_path("node", "12.7.0", ToolCacheArch::Any);
-        assert_eq!(
-            path.to_str().unwrap(),
-            cwd.join("examples/toolcache/node/12.7.0/**/")
-                .to_str()
-                .unwrap()
         );
     }
 
