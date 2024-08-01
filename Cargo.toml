@@ -42,6 +42,7 @@ tag-name = "v{{version}}"
 [features]
 default = ["log", "macros", "octocrab"]
 generate = ["ghactions-derive/generate"]
+toolcache = ["ghactions-core/toolcache"]
 # Logging
 log = ["ghactions-derive/log", "ghactions-core/log", "dep:log"]
 dotenvy = ["ghactions-derive/dotenvy"]
@@ -57,6 +58,7 @@ ghactions-derive = { version = "^0.10", path = "ghactions-derive" }
 log = { version = "0.4", optional = true }
 
 [dev-dependencies]
+ghactions = { path = "./" }
 anyhow = "1"
 log = "0.4"
 dotenvy = "0.15"
@@ -87,3 +89,9 @@ required-features = ["dotenvy", "generate"]
 name = "jit-compile"
 path = "./examples/jit-compile/src/main.rs"
 required-features = ["dotenvy", "generate"]
+
+[[example]]
+name = "toolcache"
+path = "./examples/toolcache.rs"
+required-features = ["toolcache"]
+

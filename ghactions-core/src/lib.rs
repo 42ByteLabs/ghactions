@@ -12,6 +12,8 @@ pub mod errors;
 #[cfg(feature = "log")]
 pub mod logging;
 pub mod repository;
+#[cfg(feature = "toolcache")]
+pub mod toolcache;
 
 pub use crate::actions::models::{ActionInput, ActionRuns, ActionYML};
 pub use crate::errors::ActionsError;

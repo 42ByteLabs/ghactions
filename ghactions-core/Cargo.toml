@@ -21,21 +21,25 @@ default = ["log", "macros", "octocrab"]
 log = ["dep:log", "dep:env_logger"]
 macros = []
 octocrab = ["dep:octocrab", "dep:http"]
+toolcache = ["dep:glob"]
 
 [dependencies]
 thiserror = "1"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
+glob = { version = "^0.3", optional = true }
 # Logging
 log = { version = "0.4", optional = true }
 env_logger = { version = "0.11", optional = true }
 # IndexMap
 indexmap = { version = "^2.2", features = ["serde"] }
 # GitHub API
-octocrab = { version = "^0.38", optional = true }
+octocrab = { version = "^0.39", optional = true }
 http = { version = "^1", optional = true }
 time = "0.3.36"
 
 [dev-dependencies]
 ghactions = { path = "../" }
+anyhow = "1"
+tokio = { version = "1", features = ["full"] }
 
