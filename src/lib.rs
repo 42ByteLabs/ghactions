@@ -23,6 +23,8 @@ pub mod prelude {
     // Structs / Functions
     pub use ghactions_core::errors::ActionsError;
 
+    #[cfg(feature = "toolcache")]
+    pub use ghactions_core::toolcache::ToolCache;
     #[cfg(feature = "log")]
     pub use ghactions_core::{errorf, group, groupend, setoutput};
     #[cfg(feature = "log")]
