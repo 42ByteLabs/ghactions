@@ -40,7 +40,7 @@ shared-version = true
 tag-name = "v{{version}}"
 
 [features]
-default = ["log", "macros", "octocrab"]
+default = ["log", "macros", "octocrab", "toolcache"]
 generate = ["ghactions-derive/generate"]
 toolcache = ["ghactions-core/toolcache"]
 # Logging
@@ -62,7 +62,7 @@ ghactions = { path = "./" }
 anyhow = "1"
 log = "0.4"
 dotenvy = "0.15"
-octocrab = "^0.38"
+octocrab = "^0.39"
 http = "^1"
 tokio = { version = "1.39", default-features = false, features = [
     "macros",

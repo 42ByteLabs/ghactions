@@ -30,6 +30,9 @@ cargo add ghactions
   - feature: `generate`
 - [Octocrab][octocrab] support
   - feature: `octocrab`
+- Actions ToolCache support
+  - Locating tools in the toolcache
+  - feature: `toolcache`
 
 ## 🚀 Usage
 
@@ -104,7 +107,8 @@ struct MyAction {
     version: String,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialise the Action
     let action = MyAction::init()?;
 
@@ -114,6 +118,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("My Input Mode :: `{}`", action.my_mode);
     info!("My Multiple Input :: `{:?}`", action.mutiple);
     info!("My Output Version :: `{}`", action.version);
+
+    groupend!();
+
+    // Using the toolcache feature
+    group!("ToolCache");
+    
+    // Load the ToolCache from the `examples/toolcache` folder
+    let toolcache = ToolCache::from("examples/toolcache");
+    // Find the Node.js 18.4.0 tool
+    let tool = toolcache.find("node", "18.4.0").await?;
+    info!("Tool :: {:?}", tool);
 
     groupend!();
 
