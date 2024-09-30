@@ -62,7 +62,7 @@ ghactions = { path = "./" }
 anyhow = "1"
 log = "0.4"
 dotenvy = "0.15"
-octocrab = "^0.40"
+octocrab = "^0.41"
 http = "^1"
 tokio = { version = "1.40", default-features = false, features = [
     "macros",
