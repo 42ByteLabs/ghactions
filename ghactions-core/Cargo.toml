@@ -24,7 +24,7 @@ octocrab = ["dep:octocrab", "dep:http"]
 toolcache = ["dep:glob"]
 
 [dependencies]
-thiserror = "1"
+thiserror = "2"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 glob = { version = "^0.3", optional = true }
