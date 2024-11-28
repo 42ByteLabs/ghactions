@@ -9,6 +9,12 @@ use ghactions::prelude::*;
     name = "My Action",
     // Description of the Action
     description = "My Action Description",
+    // Author
+    author = "GeekMasher",
+    // Branding icon
+    icon = "star",
+    // Branding Color
+    color = "green",
     // Setting the path to the action.yml file
     //
     // If the `generate` feature is enabled, the action.yml file will be generated

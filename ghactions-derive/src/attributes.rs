@@ -30,6 +30,13 @@ pub(crate) enum ActionsAttributeKeys {
     /// Name / Rename
     Name,
     Description,
+    /// Author / Maintainer name
+    Author,
+    /// Branding Icon
+    BrandingIcon,
+    /// Branding Color
+    BrandingColor,
+    /// Default
     Default,
     /// https://docs.github.com/en/actions/learn-github-actions/expressions
     Expression,
@@ -62,6 +69,7 @@ pub(crate) enum ActionsAttributeValue {
 }
 
 impl Parse for ActionsAttribute {
+    #[allow(irrefutable_let_patterns)]
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let name: Ident = input.parse()?;
         let name_str = name.to_string();
@@ -75,6 +83,9 @@ impl Parse for ActionsAttribute {
             "path" => Some(ActionsAttributeKeys::Path),
             "name" | "rename" => Some(ActionsAttributeKeys::Name),
             "description" => Some(ActionsAttributeKeys::Description),
+            "author" => Some(ActionsAttributeKeys::Author),
+            "branding_icon" | "icon" => Some(ActionsAttributeKeys::BrandingIcon),
+            "branding_color" | "color" => Some(ActionsAttributeKeys::BrandingColor),
             "default" => Some(ActionsAttributeKeys::Default),
             "expression" => Some(ActionsAttributeKeys::Expression),
             "required" => Some(ActionsAttributeKeys::Required),
@@ -223,6 +234,41 @@ impl ActionsAttribute {
                     return Err(syn::Error::new(
                         self.span.span(),
                         "Name attribute must have a string value",
+                    ));
+                }
+            }
+            Some(ActionsAttributeKeys::BrandingColor) => {
+                if let Some(value) = &self.value {
+                    if let ActionsAttributeValue::String(data) = value {
+                        let allowed_colors = vec![
+                            "white",
+                            "black",
+                            "yellow",
+                            "blue",
+                            "green",
+                            "orange",
+                            "red",
+                            "purple",
+                            "gray-dark",
+                        ];
+                        if allowed_colors.contains(&data.as_str()) {
+                            Ok(())
+                        } else {
+                            return Err(syn::Error::new(
+                                self.value_span.unwrap(),
+                                "Invalid color value, please check the documentation for allowed values",
+                            ));
+                        }
+                    } else {
+                        return Err(syn::Error::new(
+                            self.span.span(),
+                            "Color attribute must have a string value",
+                        ));
+                    }
+                } else {
+                    return Err(syn::Error::new(
+                        self.span.span(),
+                        "Color attribute must have a string value",
                     ));
                 }
             }

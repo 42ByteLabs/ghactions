@@ -3,6 +3,10 @@
 
 name: My Action
 description: My Action Description
+author: GeekMasher
+branding:
+  color: green
+  icon: star
 inputs:
   repo:
     description: Repository Name
