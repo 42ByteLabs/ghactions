@@ -168,12 +168,14 @@ pub struct ActionOutput {
 /// Action Branding
 ///
 /// https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct ActionBranding {
-    /// Action Color
-    pub color: String,
-    /// Action Icon
-    pub icon: String,
+    /// Color
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    /// Icon
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
 }
 
 /// Action Runs structure

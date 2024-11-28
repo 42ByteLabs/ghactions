@@ -7,7 +7,7 @@ mod helpers;
 
 use crate::attributes::{ActionsAttribute, ActionsAttributeKeys, ActionsAttributeValue};
 use ghactions_core::{
-    actions::models::{ActionOutput, ActionRunUsing},
+    actions::models::{ActionBranding, ActionOutput, ActionRunUsing},
     ActionInput, ActionYML,
 };
 
@@ -263,6 +263,35 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
             Some(ActionsAttributeKeys::Description) => {
                 if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
                     action.description = Some(value.clone());
+                }
+            }
+            Some(ActionsAttributeKeys::Author) => {
+                if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    action.author = Some(value.clone());
+                }
+            }
+            Some(ActionsAttributeKeys::BrandingIcon) => {
+                if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    if let Some(ref mut branding) = action.branding {
+                        branding.icon = Some(value.clone());
+                    } else {
+                        action.branding = Some(ActionBranding {
+                            icon: Some(value.clone()),
+                            color: None,
+                        });
+                    }
+                }
+            }
+            Some(ActionsAttributeKeys::BrandingColor) => {
+                if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    if let Some(ref mut branding) = action.branding {
+                        branding.color = Some(value.clone());
+                    } else {
+                        action.branding = Some(ActionBranding {
+                            icon: None,
+                            color: Some(value.clone()),
+                        });
+                    }
                 }
             }
             Some(ActionsAttributeKeys::Image) => {
