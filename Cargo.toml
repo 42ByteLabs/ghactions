@@ -64,7 +64,7 @@ log = "0.4"
 dotenvy = "0.15"
 octocrab = "^0.42"
 http = "^1"
-tokio = { version = "1.41", default-features = false, features = [
+tokio = { version = "1.42", default-features = false, features = [
     "macros",
     "rt-multi-thread",
     "time",
