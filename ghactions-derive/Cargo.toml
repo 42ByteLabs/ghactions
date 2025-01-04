@@ -28,9 +28,9 @@ dotenvy = ["dep:dotenvy"]
 
 [dependencies]
 # macro magic
-proc-macro2 = "1.0"
-quote = "1.0"
-syn = "2.0"
+proc-macro2 = "^1.0"
+quote = "^1.0"
+syn = "^2.0"
 
 ghactions-core = { version = "^0.12", path = "../ghactions-core" }
 
