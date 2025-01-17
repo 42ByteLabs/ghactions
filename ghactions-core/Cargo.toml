@@ -17,7 +17,7 @@ shared-version = true
 tag-name = "v{{version}}"
 
 [features]
-default = ["log", "macros", "octocrab"]
+default = ["log", "macros"]
 log = ["dep:log", "dep:env_logger"]
 macros = []
 octocrab = ["dep:octocrab", "dep:http"]
