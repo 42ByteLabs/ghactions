@@ -25,5 +25,4 @@ jobs:
           cargo install cargo-generate
           cd ./action-template
 
-          cargo generate --test
-
+          cargo generate --vcs none --test
