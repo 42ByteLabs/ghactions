@@ -1,21 +1,15 @@
 name: "ghactions"
 repository: "42ByteLabs/ghactions"
-version: 0.13.0
-default: false
+version: 0.13.1
 
 locations:
-  - name: "Release file"
-    paths:
-      - ".release.yml"
-    patterns:
-      - '\nversion:\s*([0-9]+\.[0-9]+\.[0-9])'
-  - name: "Cargo"
-    exclude:
-      - "/target/"
-      - "/action-template/"
-      - "/examples/"
+  - name: "Cargo - Workmembers"
     paths:
       - "Cargo.toml"
+      - "**/Cargo.toml"
     patterns:
-      - '\nversion\s*=\s*"([0-9]+\.[0-9]+\.[0-9])"'
+      - 'ghactions = \{.*version\s*=\s*"\^{version}".*\}'
+      - 'ghactions-core = \{.*version\s*=\s*"\^{version}".*\}'
+      - 'ghactions-derive = \{.*version\s*=\s*"\^{version}".*\}'
+
 
