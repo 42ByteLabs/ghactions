@@ -23,7 +23,7 @@ pub(crate) fn generate_helpers(
 
             set_functions.extend(quote! {
                 pub fn #func(&self, value: impl Into<String>) {
-                    ::ghactions::setoutput!(stringify!(#field_name), value.into());
+                    <#ident as ghactions::ActionTrait>::set_output(stringify!(#field_name), value);
                 }
             });
         }

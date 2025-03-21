@@ -16,6 +16,10 @@ pub enum ActionsError {
     #[error("Input Type Error: `{0}` (Expected: `{1}`)")]
     InputTypeError(String, String),
 
+    /// IO Error
+    #[error("{0}")]
+    IoError(#[from] std::io::Error),
+
     /// Tool Cache Error
     #[cfg(feature = "toolcache")]
     #[error("Tool Cache Error: `{0}`")]
