@@ -8,7 +8,6 @@
 //!
 //! # #[tokio::main]
 //! # async fn main() -> Result<()> {
-//! # std::env::set_var("RUNNER_TOOL_CACHE", "/opt/hostedtoolcache");
 //!
 //! let tool_cache = ToolCache::new();
 //! let path = tool_cache.find("node", "14.17.0").await
