@@ -3,7 +3,7 @@ resolver = "2"
 members = [".", "ghactions-core", "ghactions-derive"]
 
 [workspace.package]
-version = "0.13.1"
+version = "0.14.0"
 license = "MIT"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
@@ -14,8 +14,8 @@ repository = "https://github.com/42ByteLabs/ghactions"
 documentation = "https://docs.rs/ghactions/latest/ghactions/index.html"
 authors = ["GeekMasher"]
 
-edition = "2021"
-rust-version = "1.70"
+edition = "2024"
+rust-version = "1.85"
 
 readme = "README.md"
 
@@ -52,8 +52,8 @@ macros = ["ghactions-core/macros"]
 octocrab = ["ghactions-core/octocrab"]
 
 [dependencies]
-ghactions-core = { version = "^0.13", path = "ghactions-core" }
-ghactions-derive = { version = "^0.13", path = "ghactions-derive" }
+ghactions-core = { version = "^0.14", path = "ghactions-core" }
+ghactions-derive = { version = "^0.14", path = "ghactions-derive" }
 
 log = { version = "0.4", optional = true }
 
