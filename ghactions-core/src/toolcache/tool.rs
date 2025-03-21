@@ -2,7 +2,7 @@
 
 use std::{fmt::Display, path::PathBuf};
 
-use glob::{glob_with, MatchOptions};
+use glob::{MatchOptions, glob_with};
 use log::debug;
 
 use super::ToolCacheArch;
@@ -141,7 +141,7 @@ impl TryFrom<PathBuf> for Tool {
             None => {
                 return Err(crate::errors::ActionsError::ToolCacheError(
                     "Invalid Tool Path".to_string(),
-                ))
+                ));
             }
         };
         let version = match parts.get(parts.len() - 2) {
@@ -149,7 +149,7 @@ impl TryFrom<PathBuf> for Tool {
             None => {
                 return Err(crate::errors::ActionsError::ToolCacheError(
                     "Invalid Tool Path".to_string(),
-                ))
+                ));
             }
         };
         let name = match parts.get(parts.len() - 3) {
@@ -157,7 +157,7 @@ impl TryFrom<PathBuf> for Tool {
             None => {
                 return Err(crate::errors::ActionsError::ToolCacheError(
                     "Invalid Tool Path".to_string(),
-                ))
+                ));
             }
         };
 

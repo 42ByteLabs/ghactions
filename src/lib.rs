@@ -3,11 +3,11 @@
 #![allow(unused_imports)]
 #![deny(missing_docs)]
 
+pub use ghactions_core::ActionTrait;
+pub use ghactions_core::ActionsError;
 pub use ghactions_core::logging::init_logger;
 #[cfg(feature = "toolcache")]
 pub use ghactions_core::toolcache::ToolCache;
-pub use ghactions_core::ActionTrait;
-pub use ghactions_core::ActionsError;
 #[cfg(feature = "log")]
 pub use ghactions_core::{errorf, group, groupend, setoutput};
 pub use ghactions_derive::Actions;
