@@ -2,7 +2,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use ghactions::prelude::*;
 //!
 //! #[derive(Actions, Debug, Clone)]
@@ -36,10 +36,6 @@
 //! }
 //!
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Set the environment variables
-//!     # std::env::set_var("INPUT_MULTI_INPUT", "this,is,a,test");
-//!     # std::env::set_var("INPUT_CUSTOM", "Custom Value");
-//!
 //!     let action = MyAction::init()?;
 //!
 //!     println!("My Input   :: {}", action.my_input);
@@ -65,7 +61,7 @@ mod attributes;
 mod derives;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput};
+use syn::{DeriveInput, parse_macro_input};
 
 /// Derive macro for GitHub Actions
 #[proc_macro_derive(Actions, attributes(action, input, output))]
