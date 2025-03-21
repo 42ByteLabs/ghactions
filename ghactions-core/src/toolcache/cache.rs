@@ -1,6 +1,6 @@
 //! Tool Cache
 
-use glob::{glob, glob_with, MatchOptions};
+use glob::{MatchOptions, glob, glob_with};
 use log::debug;
 use std::path::PathBuf;
 

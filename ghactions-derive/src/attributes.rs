@@ -1,10 +1,10 @@
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
+    Attribute, Ident, LitBool, LitInt, LitStr, Token,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
     spanned::Spanned,
-    Attribute, Ident, LitBool, LitInt, LitStr, Token,
 };
 
 #[derive(Debug, Clone)]
@@ -96,7 +96,7 @@ impl Parse for ActionsAttribute {
                 return Err(syn::Error::new(
                     name.span(),
                     format!("Unknown attribute: {}", name.to_string()),
-                ))
+                ));
             }
         };
 

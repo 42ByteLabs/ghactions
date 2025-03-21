@@ -1,14 +1,14 @@
 use helpers::generate_helpers;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
-use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Fields};
+use quote::{ToTokens, quote};
+use syn::{Data, DataStruct, DeriveInput, Fields, spanned::Spanned};
 
 mod helpers;
 
 use crate::attributes::{ActionsAttribute, ActionsAttributeKeys, ActionsAttributeValue};
 use ghactions_core::{
-    actions::models::{ActionBranding, ActionOutput, ActionRunUsing},
     ActionInput, ActionYML,
+    actions::models::{ActionBranding, ActionOutput, ActionRunUsing},
 };
 
 pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error> {
