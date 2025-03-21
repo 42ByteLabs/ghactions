@@ -1,6 +1,10 @@
 name: "ghactions"
 repository: "42ByteLabs/ghactions"
-version: 0.13.1
+version: 0.14.0
+
+ecosystems:
+  - Docs
+  - Rust
 
 locations:
   - name: "Cargo - Workmembers"
