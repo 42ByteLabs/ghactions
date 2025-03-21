@@ -113,14 +113,14 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                 }
             }
 
-            let mut tokens = generate_traits(name, &fields, &ast.generics, &action)?;
+            let mut tokens = generate_traits(name, fields, &ast.generics, &action)?;
 
-            tokens.extend(generate_helpers(name, &fields, &ast.generics, &action)?);
+            tokens.extend(generate_helpers(name, fields, &ast.generics, &action)?);
 
             // Generate the action.yml file if the feature is enabled
             #[cfg(feature = "generate")]
             {
-                if let Some(_) = &action.path {
+                if action.path.is_some() {
                     action
                         .write()
                         .map_err(|e| syn::Error::new(ast.span(), e.to_string()))?;

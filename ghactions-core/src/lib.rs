@@ -6,6 +6,9 @@
 #[cfg(feature = "log")]
 extern crate log;
 
+use std::io::Write;
+use std::path::Path;
+
 pub mod actions;
 pub mod errors;
 // pub mod ghaction;
@@ -63,14 +66,25 @@ pub trait ActionTrait {
     }
 
     /// Set the output value for a provided key
-    fn set_output(
-        key: impl Into<String> + Copy,
-        value: impl Into<String> + Copy,
-    ) -> Result<(), ActionsError> {
+    fn set_output(key: impl Into<String>, value: impl Into<String>) -> Result<(), ActionsError> {
         let key = key.into();
         let value = value.into();
 
-        setoutput!(key, value);
+        let output = format!("::set-output name={}::{}", key, value);
+        let output_file = std::env::var("GITHUB_OUTPUT")
+            .unwrap_or_else(|_| "/tmp/github_actions.env".to_string());
+
+        #[cfg(feature = "log")]
+        {
+            log::debug!("{}", output);
+            log::debug!("Output File: {}", output_file);
+        }
+
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(output_file)?;
+        writeln!(file, "{}", output)?;
 
         Ok(())
     }
