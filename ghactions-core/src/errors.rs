@@ -40,6 +40,16 @@ pub enum ActionsError {
     #[error("Octocrab Error: `{0}`")]
     OctocrabError(String),
 
+    /// HTTP Header Error
+    #[cfg(feature = "octocrab")]
+    #[error("HTTP Header Error: `{0}`")]
+    HeaderError(#[from] http::header::InvalidHeaderValue),
+
+    /// Reqwest Error
+    #[cfg(feature = "octocrab")]
+    #[error("HTTP Error: `{0}`")]
+    ReqwestError(#[from] reqwest::Error),
+
     /// Failed parsing the repository reference
     #[error("Unable to parse repo reference: `{0}`")]
     RepositoryReferenceError(String),
