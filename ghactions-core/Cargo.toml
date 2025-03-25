@@ -20,14 +20,22 @@ tag-name = "v{{version}}"
 default = ["log", "macros"]
 log = ["dep:log", "dep:env_logger"]
 macros = []
-octocrab = ["dep:octocrab", "dep:http"]
-toolcache = ["dep:glob"]
+octocrab = ["dep:octocrab", "dep:http", "dep:tokio"]
+toolcache = ["dep:glob", "dep:url", "dep:reqwest", "dep:tokio", "dep:flate2", "dep:tar"]
 
 [dependencies]
 thiserror = "^2.0"
 serde = { version = "^1.0", features = ["derive"] }
 serde_yaml = "^0.9"
 glob = { version = "^0.3", optional = true }
+tokio = { version = "1", features = ["full"], optional = true }
+url = { version = "^2.5", optional = true }
+reqwest = { version = "^0.12", optional = true }
+
+# Tarball
+flate2 = { version = "^1.1", optional = true }
+tar = { version = "^0.4", optional = true }
+
 # Logging
 log = { version = "^0.4", optional = true }
 env_logger = { version = "^0.11", optional = true }

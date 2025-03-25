@@ -1,10 +1,17 @@
 //! Tool Cache
 
 use glob::{MatchOptions, glob, glob_with};
+use http::Uri;
 use log::debug;
+use octocrab::models::pulls::Head;
+#[cfg(feature = "octocrab")]
+use octocrab::models::repos::Asset;
+use std::io::Read;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use super::{Tool, ToolCacheArch};
+use crate::ActionsError;
 
 /// Tool Cache
 #[derive(Debug, Clone)]
@@ -27,7 +34,7 @@ impl ToolCache {
         &self,
         tool: impl Into<String>,
         version: impl Into<String>,
-    ) -> Result<Tool, crate::errors::ActionsError> {
+    ) -> Result<Tool, ActionsError> {
         match std::env::consts::OS {
             "windows" => self.find_with_arch(tool, version, ToolCacheArch::X64).await,
             "linux" => self.find_with_arch(tool, version, ToolCacheArch::X64).await,
@@ -43,7 +50,7 @@ impl ToolCache {
     pub async fn find_all_version(
         &self,
         tool: impl Into<String>,
-    ) -> Result<Vec<Tool>, crate::errors::ActionsError> {
+    ) -> Result<Vec<Tool>, ActionsError> {
         Tool::find(self.get_tool_cache(), tool, "*", ToolCacheArch::Any)
     }
 
@@ -53,12 +60,52 @@ impl ToolCache {
         tool: impl Into<String>,
         version: impl Into<String>,
         arch: impl Into<ToolCacheArch>,
-    ) -> Result<Tool, crate::errors::ActionsError> {
+    ) -> Result<Tool, ActionsError> {
         let tool = tool.into();
         Tool::find(self.get_tool_cache(), tool.clone(), version, arch)?
             .into_iter()
             .find(|t| t.name() == tool)
             .ok_or_else(|| crate::errors::ActionsError::ToolNotFound(tool))
+    }
+
+    /// Download an asset from a release
+    #[cfg(feature = "octocrab")]
+    pub async fn download_asset(
+        &self,
+        asset: &Asset,
+        output: impl Into<PathBuf>,
+    ) -> Result<(), ActionsError> {
+        use tokio::io::AsyncWriteExt;
+
+        let output = output.into();
+        log::debug!("Downloading asset to {:?}", output);
+
+        let url = asset.browser_download_url.clone();
+        let content_type = asset.content_type.clone();
+        log::debug!("Downloading asset from {:?}", url);
+
+        let mut file = tokio::fs::File::create(&output).await?;
+
+        // TODO: GitHub auth for private repos
+        let client = reqwest::Client::new();
+        let mut resp = client
+            .get(url)
+            .header(
+                http::header::ACCEPT,
+                http::header::HeaderValue::from_str(&content_type)?,
+            )
+            .header(
+                http::header::USER_AGENT,
+                http::header::HeaderValue::from_str("ghactions")?,
+            )
+            .send()
+            .await?;
+
+        while let Some(chunk) = resp.chunk().await? {
+            file.write_all(&chunk).await?;
+        }
+
+        Ok(())
     }
 }
 

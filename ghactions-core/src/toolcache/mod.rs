@@ -19,6 +19,7 @@
 //! ```
 
 pub mod arch;
+pub mod archives;
 pub mod cache;
 pub mod tool;
 
