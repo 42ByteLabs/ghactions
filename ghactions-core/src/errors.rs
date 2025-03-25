@@ -41,12 +41,12 @@ pub enum ActionsError {
     OctocrabError(String),
 
     /// HTTP Header Error
-    #[cfg(feature = "octocrab")]
+    #[cfg(feature = "toolcache")]
     #[error("HTTP Header Error: `{0}`")]
     HeaderError(#[from] http::header::InvalidHeaderValue),
 
     /// Reqwest Error
-    #[cfg(feature = "octocrab")]
+    #[cfg(feature = "toolcache")]
     #[error("HTTP Error: `{0}`")]
     ReqwestError(#[from] reqwest::Error),
 
