@@ -138,6 +138,20 @@ mod tests {
         );
     }
     #[test]
+    fn test_owner_repo_version_tag() {
+        let repo_ref = RepositoryReference::parse("geekmasher/ghactions@v1.0.0").unwrap();
+
+        assert_eq!(repo_ref.owner, String::from("geekmasher"));
+        assert_eq!(repo_ref.name, String::from("ghactions"));
+        assert_eq!(repo_ref.reference, Some(String::from("v1.0.0")));
+        assert_eq!(repo_ref.path, None);
+
+        assert_eq!(
+            repo_ref.display(),
+            String::from("geekmasher/ghactions@v1.0.0")
+        );
+    }
+    #[test]
     fn test_owner_repo_branch_path() {
         let repo_ref = RepositoryReference::parse("geekmasher/ghactions@feature/xyz").unwrap();
 
