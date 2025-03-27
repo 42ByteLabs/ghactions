@@ -19,11 +19,25 @@ pub(crate) fn generate_helpers(
 
         if outputs.contains(&field_name.to_string()) {
             let func_name = format!("set_{}", field_name);
+            let outfunc_name = format!("output_{}", field_name);
+
             let func = syn::Ident::new(&func_name, Span::call_site());
+            let outfunc = syn::Ident::new(&outfunc_name, Span::call_site());
 
             set_functions.extend(quote! {
-                pub fn #func(&self, value: impl Into<String>) {
-                    <#ident as ghactions::ActionTrait>::set_output(stringify!(#field_name), value);
+                /// Sets and outputs the field to the action
+                pub fn #func(&mut self, value: impl Into<String>) {
+                    let value = value.into();
+                    self.#field_name = value.clone();
+                    self.#outfunc(value);
+                }
+
+                /// Outputs the field to the action
+                ///
+                /// This does not set the field value
+                pub fn #outfunc(&self, value: impl Into<String>) {
+                    <#ident as ghactions::ActionTrait>::set_output(stringify!(#field_name), value)
+                        .unwrap();
                 }
             });
         }

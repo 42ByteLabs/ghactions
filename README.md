@@ -136,7 +136,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     group!("Set Outputs");
 
     // Using the dynamically name Action method
-    action.set_version("1.0.0");
+    action.output_version("1.0.0");
     // Using the `set_output` method
     MyAction::set_output("version", "1.0.0")?;
     // Or the Macro `setoutput!` directly
