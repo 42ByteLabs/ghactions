@@ -7,7 +7,7 @@
 extern crate log;
 
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub mod actions;
 pub mod errors;
@@ -37,7 +37,8 @@ pub trait ActionTrait {
 
     /// Get the input value for a provided key
     fn get_input(key: impl Into<String> + Copy) -> Result<String, ActionsError> {
-        std::env::var(&key.into()).map_err(|_| ActionsError::InputError(key.into()))
+        let key = key.into();
+        std::env::var(&key).map_err(|_| ActionsError::InputError(key))
     }
 
     /// Get the input value for a provided key as a boolean
@@ -71,12 +72,15 @@ pub trait ActionTrait {
         let value = value.into();
 
         let output_file = Self::get_output_path();
+        let output_path = PathBuf::from(output_file.clone());
 
-        match std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(output_file)
-        {
+        if !output_path.exists() {
+            #[cfg(feature = "log")]
+            log::debug!("Creating output file: {}", output_path.display());
+            std::fs::File::create(&output_path)?;
+        }
+
+        match std::fs::OpenOptions::new().append(true).open(output_file) {
             Ok(mut file) => {
                 writeln!(file, "{key}={value}")?;
             }
