@@ -70,21 +70,24 @@ pub trait ActionTrait {
         let key = key.into();
         let value = value.into();
 
-        let output = format!("::set-output name={}::{}", key, value);
-        let output_file = std::env::var("GITHUB_OUTPUT")
-            .unwrap_or_else(|_| "/tmp/github_actions.env".to_string());
+        let output_file = Self::get_output_path();
 
-        #[cfg(feature = "log")]
-        {
-            log::debug!("{}", output);
-            log::debug!("Output File: {}", output_file);
-        }
-
-        let mut file = std::fs::OpenOptions::new()
+        match std::fs::OpenOptions::new()
             .create(true)
             .append(true)
-            .open(output_file)?;
-        writeln!(file, "{}", output)?;
+            .open(output_file)
+        {
+            Ok(mut file) => {
+                writeln!(file, "{key}={value}")?;
+            }
+            Err(e) => {
+                #[cfg(feature = "log")]
+                log::error!("Failed to open output file: {}", e);
+
+                // If we can't open the file, print to stdout
+                println!("::set-output name={key}::{value}");
+            }
+        }
 
         Ok(())
     }
@@ -125,6 +128,25 @@ pub trait ActionTrait {
                     .build()
                     .map_err(|e| ActionsError::OctocrabError(e.to_string()))?)
             }
+        }
+    }
+
+    /// Get the GitHub Actions Output File
+    ///
+    /// https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+    fn get_output_path() -> String {
+        if let Ok(ghout) = std::env::var("GITHUB_OUTPUT") {
+            #[cfg(feature = "log")]
+            log::debug!("GITHUB_OUTPUT: {}", ghout);
+            ghout
+        } else if let Ok(ghout) = std::env::var("GITHUB_STATE") {
+            #[cfg(feature = "log")]
+            log::debug!("GITHUB_STATE: {}", ghout);
+            ghout
+        } else {
+            #[cfg(feature = "log")]
+            log::debug!("Default Output: /tmp/github_actions.env");
+            "/tmp/github_actions.env".to_string()
         }
     }
 
