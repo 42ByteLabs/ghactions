@@ -23,4 +23,4 @@ runs:
     shell: bash
     run: |-
       set -e
-      action
+      jit-compile

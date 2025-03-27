@@ -50,7 +50,7 @@ struct MyAction {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let action = MyAction::init()?;
+    let mut action = MyAction::init()?;
 
     info!("Action :: {:?}", action);
 
@@ -60,7 +60,10 @@ async fn main() -> Result<()> {
     info!("My Input Mode :: `{}`", action.mode);
     info!("My Input Crates :: `{:?}`", action.crates);
 
+    action.set_version("1.0.0");
+
     info!("My Output Version :: `{}`", action.version);
+    assert_eq!(action.version, "1.0.0");
 
     group!("Octocrab");
     let octocrab = action.octocrab()?;
