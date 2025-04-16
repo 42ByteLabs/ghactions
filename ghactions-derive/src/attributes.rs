@@ -7,6 +7,18 @@ use syn::{
     spanned::Spanned,
 };
 
+const ALLOWED_COLOURS: [&str; 9] = [
+    "white",
+    "black",
+    "yellow",
+    "blue",
+    "green",
+    "orange",
+    "red",
+    "purple",
+    "gray-dark",
+];
+
 #[derive(Debug, Clone)]
 pub(crate) struct ActionsAttribute {
     #[allow(dead_code)]
@@ -50,6 +62,8 @@ pub(crate) enum ActionsAttributeKeys {
     Separator,
     /// Entrypoint
     Entrypoint,
+    /// Composite Action
+    Composite,
 }
 
 #[derive(Debug, Clone)]
@@ -91,11 +105,12 @@ impl Parse for ActionsAttribute {
             "required" => Some(ActionsAttributeKeys::Required),
             "image" => Some(ActionsAttributeKeys::Image),
             "entrypoint" => Some(ActionsAttributeKeys::Entrypoint),
+            "composite" => Some(ActionsAttributeKeys::Composite),
             "separator" | "split" => Some(ActionsAttributeKeys::Separator),
             _ => {
                 return Err(syn::Error::new(
                     name.span(),
-                    format!("Unknown attribute: {}", name.to_string()),
+                    format!("Unknown attribute: {}", name),
                 ));
             }
         };
@@ -198,159 +213,112 @@ impl ActionsAttribute {
     pub(crate) fn validate(&self) -> Result<(), syn::Error> {
         match self.key {
             Some(ActionsAttributeKeys::Path) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::Path(_) = value {
-                        // TODO: Validate path
-                        Ok(())
-                    } else if let ActionsAttributeValue::String(_) = value {
-                        return Err(syn::Error::new(
-                            self.value_span.unwrap(),
-                            "Path attribute must start with `.` or `/` (e.g. `./action.yml`)",
-                        ));
-                    } else {
-                        return Err(syn::Error::new(
-                            self.value_span.unwrap(),
-                            "Path attribute must have a string value",
-                        ));
-                    }
-                } else {
+                if let Some(ActionsAttributeValue::Path(_)) = &self.value {
+                    // TODO: Validate path
+                    Ok(())
+                } else if let Some(ActionsAttributeValue::String(_)) = &self.value {
                     return Err(syn::Error::new(
+                        self.value_span.unwrap(),
+                        "Path attribute must start with `.` or `/` (e.g. `./action.yml`)",
+                    ));
+                } else {
+                    Err(syn::Error::new(
                         self.span.span(),
                         "Path attribute must have a string value",
-                    ));
+                    ))
                 }
             }
             Some(ActionsAttributeKeys::Name) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::String(_) = value {
-                        Ok(())
-                    } else {
-                        return Err(syn::Error::new(
-                            self.value_span.unwrap(),
-                            "Name attribute must have a string value",
-                        ));
-                    }
+                if let Some(ActionsAttributeValue::String(_)) = &self.value {
+                    Ok(())
                 } else {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.span.span(),
                         "Name attribute must have a string value",
-                    ));
+                    ))
                 }
             }
             Some(ActionsAttributeKeys::BrandingColor) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::String(data) = value {
-                        let allowed_colors = vec![
-                            "white",
-                            "black",
-                            "yellow",
-                            "blue",
-                            "green",
-                            "orange",
-                            "red",
-                            "purple",
-                            "gray-dark",
-                        ];
-                        if allowed_colors.contains(&data.as_str()) {
-                            Ok(())
-                        } else {
-                            return Err(syn::Error::new(
-                                self.value_span.unwrap(),
-                                "Invalid color value, please check the documentation for allowed values",
-                            ));
-                        }
+                if let Some(ActionsAttributeValue::String(data)) = &self.value {
+                    if ALLOWED_COLOURS.contains(&data.as_str()) {
+                        Ok(())
                     } else {
-                        return Err(syn::Error::new(
-                            self.span.span(),
-                            "Color attribute must have a string value",
-                        ));
+                        Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Invalid color value, please check the documentation for allowed values",
+                        ))
                     }
                 } else {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.span.span(),
                         "Color attribute must have a string value",
-                    ));
+                    ))
                 }
             }
             Some(ActionsAttributeKeys::Required) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::Bool(_) = value {
-                        Ok(())
-                    } else {
-                        return Err(syn::Error::new(
-                            self.value_span.unwrap(),
-                            "Required attribute must have a boolean value",
-                        ));
-                    }
-                } else {
+                if let Some(ActionsAttributeValue::Bool(_)) = &self.value {
                     Ok(())
+                } else {
+                    Err(syn::Error::new(
+                        self.value_span.unwrap(),
+                        "Required attribute must have a boolean value",
+                    ))
                 }
             }
             Some(ActionsAttributeKeys::Image) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::Path(path) = value {
-                        if path.exists() {
-                            Ok(())
-                        } else {
-                            return Err(syn::Error::new(
-                                self.value_span.unwrap(),
-                                "Image attribute must have a valid path value (file not found)",
-                            ));
-                        }
+                if let Some(ActionsAttributeValue::Path(path)) = &self.value {
+                    if path.exists() {
+                        Ok(())
                     } else {
-                        return Err(syn::Error::new(
+                        Err(syn::Error::new(
                             self.value_span.unwrap(),
-                            "Image attribute must have a path value",
-                        ));
+                            "Image attribute must have a valid path value (file not found)",
+                        ))
                     }
                 } else {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.span.span(),
                         "Image attribute must have a string value",
-                    ));
+                    ))
                 }
             }
             Some(ActionsAttributeKeys::Entrypoint) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::Path(path) = value {
-                        if path.exists() {
-                            Ok(())
-                        } else {
-                            return Err(syn::Error::new(
-                                self.value_span.unwrap(),
-                                "Entrypoint attribute must have a valid path value (file not found)",
-                            ));
-                        }
-                    } else if let ActionsAttributeValue::String(_) = value {
+                if let Some(ActionsAttributeValue::Path(path)) = &self.value {
+                    if path.exists() {
                         Ok(())
                     } else {
-                        return Err(syn::Error::new(
+                        Err(syn::Error::new(
                             self.value_span.unwrap(),
-                            "Entrypoint attribute must have a path value",
-                        ));
+                            "Entrypoint attribute must have a valid path value (file not found)",
+                        ))
                     }
+                } else if let Some(ActionsAttributeValue::String(_)) = &self.value {
+                    Ok(())
                 } else {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.span.span(),
                         "Entrypoint attribute must have a string value",
-                    ));
+                    ))
+                }
+            }
+            Some(ActionsAttributeKeys::Composite) => {
+                if let Some(ActionsAttributeValue::Bool(_)) = &self.value {
+                    Ok(())
+                } else {
+                    Err(syn::Error::new(
+                        self.value_span.unwrap(),
+                        "Composite attribute must have a boolean value",
+                    ))
                 }
             }
             Some(ActionsAttributeKeys::Separator) => {
-                if let Some(value) = &self.value {
-                    if let ActionsAttributeValue::String(_) = value {
-                        Ok(())
-                    } else {
-                        return Err(syn::Error::new(
-                            self.value_span.unwrap(),
-                            "Separator attribute must have a string value",
-                        ));
-                    }
+                if let Some(ActionsAttributeValue::String(_)) = &self.value {
+                    Ok(())
                 } else {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.span.span(),
                         "Separator attribute must have a string value",
-                    ));
+                    ))
                 }
             }
             _ => Ok(()),
