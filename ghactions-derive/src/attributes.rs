@@ -36,6 +36,9 @@ pub(crate) enum ActionsAttributeKeys {
     Input,
     /// Action Output attribute
     Output,
+    /// Output Step name
+    OutputStepName,
+
     // Sub-attributes
     /// Path attribute
     Path,
@@ -64,6 +67,8 @@ pub(crate) enum ActionsAttributeKeys {
     Entrypoint,
     /// Composite Action
     Composite,
+    /// Installer
+    Installer,
 }
 
 #[derive(Debug, Clone)]
@@ -93,6 +98,7 @@ impl Parse for ActionsAttribute {
             "actions" => Some(ActionsAttributeKeys::Actions),
             "input" => Some(ActionsAttributeKeys::Input),
             "output" => Some(ActionsAttributeKeys::Output),
+            "output-step" | "output_step" => Some(ActionsAttributeKeys::OutputStepName),
             // Sub-attributes
             "path" => Some(ActionsAttributeKeys::Path),
             "name" | "rename" => Some(ActionsAttributeKeys::Name),
@@ -106,6 +112,7 @@ impl Parse for ActionsAttribute {
             "image" => Some(ActionsAttributeKeys::Image),
             "entrypoint" => Some(ActionsAttributeKeys::Entrypoint),
             "composite" => Some(ActionsAttributeKeys::Composite),
+            "installer" => Some(ActionsAttributeKeys::Installer),
             "separator" | "split" => Some(ActionsAttributeKeys::Separator),
             _ => {
                 return Err(syn::Error::new(
@@ -309,6 +316,25 @@ impl ActionsAttribute {
                         self.value_span.unwrap(),
                         "Composite attribute must have a boolean value",
                     ))
+                }
+            }
+            Some(ActionsAttributeKeys::Installer) => {
+                if let Some(ActionsAttributeValue::Path(path)) = &self.value {
+                    if path.exists() {
+                        Ok(())
+                    } else {
+                        Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Installer attribute must have a valid path value (file not found)",
+                        ))
+                    }
+                } else if let Some(ActionsAttributeValue::Int(_)) = &self.value {
+                    Err(syn::Error::new(
+                        self.value_span.unwrap(),
+                        "Installer attribute must have a string value",
+                    ))
+                } else {
+                    Ok(())
                 }
             }
             Some(ActionsAttributeKeys::Separator) => {
