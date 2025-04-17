@@ -14,11 +14,31 @@ use crate::ActionsError;
 
 const GHACTIONS_ROOT: &str = env!("CARGO_MANIFEST_DIR");
 
+/// Action Mode
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ActionMode {
+    /// Default Mode
+    #[default]
+    Default,
+    /// Container/Docker Mode
+    Container,
+    /// Installer Mode
+    Installer,
+    /// Entrypoint Mode
+    Entrypoint,
+    /// Custom Composite Action
+    CustomComposite,
+}
+
 /// Action YAML file structure
 ///
 /// https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ActionYML {
+    /// Action Mode
+    #[serde(skip)]
+    pub mode: ActionMode,
+
     /// Action Path
     #[serde(skip)]
     pub path: Option<PathBuf>,
@@ -52,6 +72,7 @@ pub struct ActionYML {
 impl Default for ActionYML {
     fn default() -> Self {
         ActionYML {
+            mode: ActionMode::Default,
             path: None,
             name: Some(env!("CARGO_PKG_NAME").to_string()),
             description: None,
@@ -75,6 +96,116 @@ impl ActionYML {
         self.output_value_step_id = None;
     }
 
+    /// This mode uses a composite action with `gh` cli to install the action
+    /// on the runner.
+    ///
+    /// https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+    pub fn add_installer_step(&mut self) {
+        if self.runs.steps.is_none() {
+            self.runs.steps = Some(vec![]);
+        }
+
+        let binary_name =
+            std::env::var("CARGO_BIN_NAME").unwrap_or_else(|_| "${{ github.action }}".to_string());
+
+        let env = IndexMap::from([
+            (
+                "ACTION_REPOSITORY".to_string(),
+                "${{ github.action_repository }}".to_string(),
+            ),
+            (
+                "ACTION_REF".to_string(),
+                "${{ github.action_ref }}".to_string(),
+            ),
+            ("BINARY_NAME".to_string(), binary_name.to_string()),
+            ("GH_TOKEN".to_string(), "${{ github.token }}".to_string()),
+            ("VERSION".to_string(), env!("CARGO_PKG_VERSION").to_string()),
+            (
+                "ACTION_PATH".to_string(),
+                "${{ github.action_path }}".to_string(),
+            ),
+            ("RUNNER_OS".to_string(), "${{ runner.os }}".to_string()),
+            ("RUNNER_ARCH".to_string(), "${{ runner.arch }}".to_string()),
+        ]);
+
+        if let Some(ref mut steps) = self.runs.steps {
+            // Linux / MacOS
+            steps.push(ActionRunStep {
+                name: Some("Install the Action".to_string()),
+                id: Some("install-action".to_string()),
+                shell: Some("bash".to_string()),
+                condition: Some("${{ runner.os == 'Linux' || runner.os == 'macOS' }}".to_string()),
+                env: Some(env.clone()),
+                run: Some(include_str!("installer.sh").to_string()),
+            });
+            // TODO: Add Windows support
+        }
+    }
+
+    /// Add a custom installer script to the Action
+    pub fn add_script(&mut self, script: &str, id: Option<&str>) {
+        if self.runs.steps.is_none() {
+            self.runs.steps = Some(vec![]);
+        }
+
+        if let Some(ref mut steps) = self.runs.steps {
+            // Add script inline in the step
+            steps.push(ActionRunStep {
+                id: id.map(|s| s.to_string()),
+                name: Some("Installing Action".to_string()),
+                shell: Some("bash".to_string()),
+                run: Some(script.to_string()),
+                ..Default::default()
+            });
+        }
+    }
+
+    /// Add run step to the Action
+    pub fn add_script_run(&mut self) {
+        if self.runs.steps.is_none() {
+            self.runs.steps = Some(vec![]);
+        }
+
+        if let Some(ref mut steps) = self.runs.steps {
+            self.output_value_step_id = Some("cargo-run".to_string());
+
+            let script = format!(
+                "set -e\n${{{{ GITHUB_ACTION_PATH }}}}/{}",
+                env!("CARGO_PKG_NAME")
+            );
+            // Add script inline in the step
+            steps.push(ActionRunStep {
+                name: Some("Run the Action".to_string()),
+                id: Some("cargo-run".to_string()),
+                shell: Some("bash".to_string()),
+                run: Some(script.to_string()),
+                ..Default::default()
+            });
+        }
+    }
+
+    /// Add cargo install step
+    pub fn add_cargo_install_step(&mut self, binary_name: &str) {
+        if self.runs.steps.is_none() {
+            self.runs.steps = Some(vec![]);
+        }
+
+        if let Some(ref mut steps) = self.runs.steps.take() {
+            let cmd = if binary_name == "." {
+                "cargo install --path .".to_string()
+            } else {
+                format!("cargo install \"{binary_name}\"")
+            };
+
+            steps.push(ActionRunStep {
+                name: Some("Cargo Install".to_string()),
+                shell: Some("bash".to_string()),
+                run: Some(cmd),
+                ..Default::default()
+            });
+        }
+    }
+
     /// Load the Action YAML file
     pub fn load_action(path: String) -> Result<ActionYML, Box<dyn std::error::Error>> {
         let fhandle = std::fs::File::open(&path)?;
@@ -94,9 +225,15 @@ impl ActionYML {
 
             let mut content = String::new();
             content.push_str("# This file is generated by ghactions\n");
-            content.push_str(
+            if self.mode == ActionMode::CustomComposite {
+                content.push_str(
+                    "# `ghactions` is generating all parts but not composite action steps\n",
+                );
+            } else {
+                content.push_str(
                 "# Do not edit this file manually unless you disable the `generate` feature.\n\n",
             );
+            }
             content.push_str(
                 serde_yaml::to_string(self)
                     .map_err(|err| ActionsError::IOError(err.to_string()))?
@@ -202,7 +339,7 @@ impl Default for ActionRuns {
             using: ActionRunUsing::Composite,
             image: None,
             args: None,
-            steps: Some(default_composite_steps()),
+            steps: None,
         }
     }
 }
@@ -276,20 +413,24 @@ impl Serialize for ActionRunUsing {
 /// Action Run Step
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct ActionRunStep {
-    /// Step ID
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
     /// Step Name
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Step ID
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// Run if condition
+    #[serde(rename = "if", skip_serializing_if = "Option::is_none")]
+    pub condition: Option<String>,
+
+    /// Environment Variables
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub env: Option<IndexMap<String, String>>,
+
     /// Shell to use (if any)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shell: Option<String>,
     /// Run command
     #[serde(skip_serializing_if = "Option::is_none")]
     pub run: Option<String>,
-
-    /// Environment Variables
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<HashMap<String, String>>,
 }
