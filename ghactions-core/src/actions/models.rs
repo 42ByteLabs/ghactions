@@ -190,7 +190,7 @@ impl ActionYML {
             self.runs.steps = Some(vec![]);
         }
 
-        if let Some(ref mut steps) = self.runs.steps.take() {
+        if let Some(ref mut steps) = self.runs.steps {
             let cmd = if binary_name == "." {
                 "cargo install --path .".to_string()
             } else {
