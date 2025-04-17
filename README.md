@@ -56,6 +56,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Using Template (cargo-generate)
+
+You can use the [cargo-generate](cargo-generate) tool to create a new GitHub Action project with the library.
+
+```bash
+cargo generate --git https://github.com/42ByteLabs/ghactions
+```
+
 ### Advance Usage
 
 Another feature of `ghactions` is the ability to automatically parse inputs and outputs from the action.
@@ -151,53 +159,50 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Generating the `action.yml` file
 
 The `generate` feature will allow you to generate the `action.yml` file from the code.
+There are 3 ways to generate the `action.yml` file:
+
+- [`image` mode](./examples/advanced): 
+  - This will generate the `action.yml` file with a container `image`.
+- [`entrypoint` mode](./examples/entrypoint):
+  - This will generate a composite Action with an entrypoint script.
+- [`installer` mode](./examples/installer):
+  - This will generate a composite Action with an installer script.
 
 ```rust no_run
 use ghactions::prelude::*;
 
 #[derive(Actions, Debug, Clone)]
 #[action(
-    // Action Name
-    name = "My Action",
-    // Action Location (use `generate` feature to generate action.yml file)
-    path = "./action.yml",
-    // Set the Actions Dockerfile image
-    // `ghactions` will check the Dockerfile exists
+    // Container / Docker file to supply the Action
     image = "./examples/advanced/Dockerfile",
+    // [Optional] Supply a entrypoint for the container image
+    entrypoint = "./examples/entrypoint/entrypoint.sh",
 )]
-struct MyAction {
-    /// My Input
-    #[input(
-        // Input Description
-        description = "My Input Description",
-        // Default Value
-        default = "default"
-    )]
-    my_input: String,
-
-    #[output(
-        // Output Description
-        description = "My Output Description",
-    )]
-    my_output: String,
+struct ContainerAction {
+    // ...
 }
+
+#[derive(Actions, Debug, Clone)]
+#[action(
+    // Entrypoint is a Composite Action with an entrypoint script
+    entrypoint = "./examples/entrypoint/entrypoint.sh",
+)]
+struct EntrypointAction {
+    // ...
+}
+
+#[derive(Actions, Debug, Clone)]
+#[action(
+    // Composite Action with an installer script
+    installer
+)]
+struct InstallerAction {
+    // ...
+}
+
 ```
 
-At build time, the `action.yml` file will be generated with the following content:
-
-```yaml
-name: My Action
-inputs:
-  my_input:
-    description: My Input Description
-    default: default
-outputs:
-  my_output:
-    description: My Output Description
-runs:
-  using: "docker"
-  image: "Dockerfile"
-```
+At build time, the `action.yml` file will be generated with the following content.
 
 ### Using Octocrab
 
@@ -221,14 +226,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
-
-### Using Template (cargo-generate)
-
-You can use the [cargo-generate](cargo-generate) tool to create a new GitHub Action project with the library.
-
-```bash
-cargo generate --git https://github.com/42ByteLabs/ghactions
 ```
 
 ## 🦸 Support
