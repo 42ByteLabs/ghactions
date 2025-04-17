@@ -8,7 +8,7 @@ mod helpers;
 use crate::attributes::{ActionsAttribute, ActionsAttributeKeys, ActionsAttributeValue};
 use ghactions_core::{
     ActionInput, ActionYML,
-    actions::models::{ActionBranding, ActionOutput, ActionRunUsing},
+    actions::models::{ActionBranding, ActionMode, ActionOutput, ActionRunUsing},
 };
 
 pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error> {
@@ -295,11 +295,18 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
                 }
             }
             Some(ActionsAttributeKeys::Image) => {
+                action.mode = ActionMode::Container;
+
                 if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
                     action.set_container_image(value.to_path_buf());
                 }
             }
             Some(ActionsAttributeKeys::Entrypoint) => {
+                action.mode = ActionMode::Entrypoint;
+                if action.runs.steps.is_none() {
+                    action.runs.steps = Some(vec![]);
+                }
+
                 if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
                     if value.is_empty() {
                         return Err(syn::Error::new(
@@ -307,6 +314,7 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
                             "Entrypoint cannot be empty",
                         ));
                     }
+
                     if action.runs.using == ActionRunUsing::Docker {
                         action.runs.args = Some(vec![value.clone()]);
                     }
@@ -334,6 +342,24 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
                         }]);
 
                     action.output_value_step_id = Some("entrypoint-script".to_string());
+                }
+            }
+            Some(ActionsAttributeKeys::Installer) => {
+                action.mode = ActionMode::Installer;
+
+                // For those who want to use their own installer script
+                if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
+                    // Read the installer script from the file
+                    let installer_script = std::fs::read_to_string(value)
+                        .map_err(|e| syn::Error::new(attr.value_span.unwrap(), e.to_string()))?;
+
+                    action.add_script(installer_script.as_str(), Some("install-script"));
+                } else if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    // If its a string, we assume its a cargo package
+                    action.add_cargo_install_step(value);
+                } else {
+                    action.add_installer_step();
+                    action.add_script_run();
                 }
             }
             _ => {}
