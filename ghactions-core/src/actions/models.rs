@@ -119,10 +119,6 @@ impl ActionYML {
             ),
             ("BINARY_NAME".to_string(), binary_name.to_string()),
             ("GH_TOKEN".to_string(), "${{ github.token }}".to_string()),
-            (
-                "VERSION".to_string(),
-                "${{ github.event.release.tag_name }}".to_string(),
-            ),
             ("RUNNER_OS".to_string(), "${{ runner.os }}".to_string()),
             ("RUNNER_ARCH".to_string(), "${{ runner.arch }}".to_string()),
         ]);
