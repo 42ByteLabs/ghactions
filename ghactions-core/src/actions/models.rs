@@ -119,10 +119,9 @@ impl ActionYML {
             ),
             ("BINARY_NAME".to_string(), binary_name.to_string()),
             ("GH_TOKEN".to_string(), "${{ github.token }}".to_string()),
-            ("VERSION".to_string(), env!("CARGO_PKG_VERSION").to_string()),
             (
-                "ACTION_PATH".to_string(),
-                "${{ github.action_path }}".to_string(),
+                "VERSION".to_string(),
+                "${{ github.event.release.tag_name }}".to_string(),
             ),
             ("RUNNER_OS".to_string(), "${{ runner.os }}".to_string()),
             ("RUNNER_ARCH".to_string(), "${{ runner.arch }}".to_string()),
@@ -169,10 +168,9 @@ impl ActionYML {
         if let Some(ref mut steps) = self.runs.steps {
             self.output_value_step_id = Some("cargo-run".to_string());
 
-            let script = format!(
-                "set -e\n${{{{ GITHUB_ACTION_PATH }}}}/{}",
-                env!("CARGO_PKG_NAME")
-            );
+            let binary_name = std::env::var("CARGO_BIN_NAME")
+                .unwrap_or_else(|_| "${{ github.action }}".to_string());
+            let script = format!("set -e\n{}", binary_name);
             // Add script inline in the step
             steps.push(ActionRunStep {
                 name: Some("Run the Action".to_string()),
