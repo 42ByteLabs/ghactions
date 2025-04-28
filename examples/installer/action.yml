@@ -44,7 +44,7 @@ runs:
       if [[ ! "$ACTION_REF" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           VERSION=$(gh release list --repo "$ACTION_REPOSITORY" --limit 1 | awk '{print $1}')
       else
-          VERSION="v${VERSION}"
+          VERSION="v${ACTION_REF}"
       fi
       echo "GitHub Action Repository :: $ACTION_REPOSITORY (${VERSION})"
       echo "Runner :: $RUNNER_OS ($RUNNER_ARCH)"
