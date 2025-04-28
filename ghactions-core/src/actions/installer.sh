@@ -1,7 +1,11 @@
 # This script installs the specified version of the action from GitHub releases.
 set -e
 
-echo "GitHub Action Repository :: $ACTION_REPOSITORY (v${VERSION})"
+VERSION="${ACTION_REF:-latest}"
+if [ "$VERSION" = "latest" ] || [ "$VERSION" = "main" ]; then
+    VERSION=$(gh release list --repo "$ACTION_REPOSITORY" --limit 1 | awk '{print $1}')
+fi
+echo "GitHub Action Repository :: $ACTION_REPOSITORY (${VERSION})"
 echo "Runner :: $RUNNER_OS ($RUNNER_ARCH)"
 
 gh release download \
