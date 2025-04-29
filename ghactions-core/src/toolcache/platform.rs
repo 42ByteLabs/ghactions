@@ -1,7 +1,5 @@
 //! # Tool Cache Platform
 
-use std::path::Display;
-
 /// Tool Cache Platform
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToolPlatform {
