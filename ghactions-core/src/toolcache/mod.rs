@@ -22,6 +22,7 @@ pub mod arch;
 pub mod archives;
 pub mod cache;
 pub mod tool;
+pub mod platform;
 
 pub use arch::ToolCacheArch;
 pub use cache::ToolCache;
