@@ -10,7 +10,7 @@ use std::io::Read;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use super::{Tool, ToolCacheArch};
+use super::{Tool, ToolCacheArch, platform::ToolPlatform};
 use crate::ActionsError;
 
 /// Tool Cache
@@ -25,6 +25,21 @@ impl ToolCache {
     pub fn new() -> Self {
         Self::default()
     }
+
+    /// Get the platform for the tool cache
+    pub fn platform(&self) -> ToolPlatform {
+        ToolPlatform::from_current_os()
+    }
+
+    /// Get the architecture for the tool cache
+    pub fn arch(&self) -> ToolCacheArch {
+        match std::env::consts::ARCH {
+            "x86_64" | "amd64" => ToolCacheArch::X64,
+            "aarch64" => ToolCacheArch::ARM64,
+            _ => ToolCacheArch::Any,
+        }
+    }
+
     /// Get the Tool Cache Path
     pub fn get_tool_cache(&self) -> &PathBuf {
         &self.tool_cache
@@ -35,14 +50,14 @@ impl ToolCache {
         tool: impl Into<String>,
         version: impl Into<String>,
     ) -> Result<Tool, ActionsError> {
-        match std::env::consts::OS {
-            "windows" => self.find_with_arch(tool, version, ToolCacheArch::X64).await,
-            "linux" => self.find_with_arch(tool, version, ToolCacheArch::X64).await,
-            "macos" => {
+        match self.platform() {
+            ToolPlatform::Windows => self.find_with_arch(tool, version, ToolCacheArch::X64).await,
+            ToolPlatform::Linux => self.find_with_arch(tool, version, ToolCacheArch::X64).await,
+            ToolPlatform::MacOS => {
                 self.find_with_arch(tool, version, ToolCacheArch::ARM64)
                     .await
             }
-            _ => self.find_with_arch(tool, version, ToolCacheArch::Any).await,
+            ToolPlatform::Any => self.find_with_arch(tool, version, ToolCacheArch::Any).await,
         }
     }
 
@@ -66,6 +81,15 @@ impl ToolCache {
             .into_iter()
             .find(|t| t.name() == tool)
             .ok_or_else(|| crate::errors::ActionsError::ToolNotFound(tool))
+    }
+
+    /// Create a path for the tool in the cache to be used
+    pub async fn new_tool_path(
+        &self,
+        tool: impl Into<String>,
+        version: impl Into<String>,
+    ) -> PathBuf {
+        Tool::tool_path(self.get_tool_cache(), tool, version, self.arch())
     }
 
     /// Download an asset from a release
