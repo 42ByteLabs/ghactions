@@ -48,3 +48,37 @@ impl From<&str> for ToolPlatform {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_current_os() {
+        // This will depend on the OS running the test
+        let platform = ToolPlatform::from_current_os();
+        match std::env::consts::OS {
+            "windows" => assert_eq!(platform, ToolPlatform::Windows),
+            "linux" => assert_eq!(platform, ToolPlatform::Linux),
+            "macos" => assert_eq!(platform, ToolPlatform::MacOS),
+            _ => assert_eq!(platform, ToolPlatform::Any),
+        }
+    }
+
+    #[test]
+    fn test_to_string() {
+        assert_eq!(ToolPlatform::Windows.to_string(), "windows");
+        assert_eq!(ToolPlatform::Linux.to_string(), "linux");
+        assert_eq!(ToolPlatform::MacOS.to_string(), "macos");
+        assert_eq!(ToolPlatform::Any.to_string(), "any");
+    }
+
+    #[test]
+    fn test_from_str() {
+        assert_eq!(ToolPlatform::from("windows"), ToolPlatform::Windows);
+        assert_eq!(ToolPlatform::from("linux"), ToolPlatform::Linux);
+        assert_eq!(ToolPlatform::from("macos"), ToolPlatform::MacOS);
+        assert_eq!(ToolPlatform::from("unknown"), ToolPlatform::Any);
+        assert_eq!(ToolPlatform::from(""), ToolPlatform::Any);
+    }
+}
