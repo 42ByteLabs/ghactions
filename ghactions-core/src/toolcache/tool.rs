@@ -106,7 +106,7 @@ impl Tool {
     }
 
     /// Get the path to a tool in the cache
-    fn tool_path(
+    pub(crate) fn tool_path(
         toolcache_root: impl Into<PathBuf>,
         tool: impl Into<String>,
         version: impl Into<String>,
