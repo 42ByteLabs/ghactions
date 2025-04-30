@@ -50,6 +50,11 @@ pub enum ActionsError {
     #[error("HTTP Error: `{0}`")]
     ReqwestError(#[from] reqwest::Error),
 
+    /// Zip Error
+    #[cfg(feature = "toolcache-zip")]
+    #[error("Zip Error: `{0}`")]
+    ZipError(#[from] zip::result::ZipError),
+
     /// Failed parsing the repository reference
     #[error("Unable to parse repo reference: `{0}`")]
     RepositoryReferenceError(String),
