@@ -33,7 +33,7 @@ impl Display for ToolPlatform {
             ToolPlatform::Linux => write!(f, "linux"),
             ToolPlatform::MacOS => write!(f, "macos"),
             ToolPlatform::Windows => write!(f, "windows"),
-            _ => write!(f, "unknown"),
+            ToolPlatform::Any => write!(f, "any"),
         }
     }
 }
