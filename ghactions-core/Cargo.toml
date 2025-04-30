@@ -21,7 +21,12 @@ default = ["log", "macros"]
 log = ["dep:log", "dep:env_logger"]
 macros = []
 octocrab = ["dep:octocrab", "dep:http", "dep:tokio"]
-toolcache = ["dep:glob", "dep:url", "dep:reqwest", "dep:tokio", "dep:flate2", "dep:tar"]
+
+# Toolcache features
+toolcache = ["dep:glob", "dep:url", "dep:reqwest", "dep:tokio"]
+toolcache-all = ["toolcache", "toolcache-tarball", "toolcache-zip"]
+toolcache-tarball = ["toolcache", "dep:flate2", "dep:tar"]
+toolcache-zip = ["toolcache", "dep:flate2", "dep:zip"]
 
 [dependencies]
 thiserror = "^2.0"
@@ -35,6 +40,8 @@ reqwest = { version = "^0.12", optional = true }
 # Tarball
 flate2 = { version = "^1.1", optional = true }
 tar = { version = "^0.4", optional = true }
+# Zip
+zip = { version = "^2.6", optional = true }
 
 # Logging
 log = { version = "^0.4", optional = true }
