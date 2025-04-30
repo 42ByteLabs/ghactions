@@ -84,11 +84,7 @@ impl ToolCache {
     }
 
     /// Create a path for the tool in the cache to be used
-    pub async fn new_tool_path(
-        &self,
-        tool: impl Into<String>,
-        version: impl Into<String>,
-    ) -> PathBuf {
+    pub fn new_tool_path(&self, tool: impl Into<String>, version: impl Into<String>) -> PathBuf {
         Tool::tool_path(self.get_tool_cache(), tool, version, self.arch())
     }
 

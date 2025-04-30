@@ -1,5 +1,7 @@
 //! # Tool Cache Platform
 
+use std::fmt::Display;
+
 /// Tool Cache Platform
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToolPlatform {
@@ -25,13 +27,13 @@ impl ToolPlatform {
     }
 }
 
-impl ToString for ToolPlatform {
-    fn to_string(&self) -> String {
+impl Display for ToolPlatform {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ToolPlatform::Windows => "windows".to_string(),
-            ToolPlatform::Linux => "linux".to_string(),
-            ToolPlatform::MacOS => "macos".to_string(),
-            ToolPlatform::Any => "any".to_string(),
+            ToolPlatform::Linux => write!(f, "linux"),
+            ToolPlatform::MacOS => write!(f, "macos"),
+            ToolPlatform::Windows => write!(f, "windows"),
+            _ => write!(f, "unknown"),
         }
     }
 }
