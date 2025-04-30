@@ -1,6 +1,6 @@
 name: "ghactions"
 repository: "42ByteLabs/ghactions"
-version: 0.15.4
+version: 0.16.0
 
 ecosystems:
   - Docs
