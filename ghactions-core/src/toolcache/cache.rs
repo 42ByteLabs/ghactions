@@ -13,6 +13,21 @@ use std::str::FromStr;
 use super::{Tool, ToolCacheArch, platform::ToolPlatform};
 use crate::ActionsError;
 
+/// Linux and MacOS Tool Cache Paths
+#[cfg(target_family = "unix")]
+const TOOL_CACHE_PATHS: [&str; 3] = [
+    "/opt/hostedtoolcache",
+    "/usr/local/share/toolcache",
+    "/tmp/toolcache",
+];
+/// Windows Tool Cache Paths
+#[cfg(target_family = "windows")]
+const TOOL_CACHE_PATHS: [&str; 3] = [
+    "C:\\hostedtoolcache",
+    "C:\\Program Files\\toolcache",
+    "C:\\tmp\\toolcache",
+];
+
 /// Tool Cache
 #[derive(Debug, Clone)]
 pub struct ToolCache {
@@ -22,8 +37,50 @@ pub struct ToolCache {
 
 impl ToolCache {
     /// Create a new Tool Cache
+    ///
+    /// This will either use the `RUNNER_TOOL_CACHE` environment variable or
+    /// it will try to find the tool cache in the default locations.
+    ///
+    /// There are 3 default locations:
+    ///  
+    /// - `/opt/hostedtoolcache` (Unix)
+    /// - `/usr/local/share/toolcache` (Unix)
+    /// - `/tmp/toolcache` (Unix)
+    /// - `C:\\hostedtoolcache` (Windows)
+    /// - `C:\\Program Files\\toolcache` (Windows)
+    /// - `C:\\tmp\\toolcache` (Windows)
+    ///
+    /// If no locations are found or writeable, it will create a new tool cache
+    /// in the current directory at `./.toolcache`.
+    ///
     pub fn new() -> Self {
-        Self::default()
+        let tool_cache = std::env::var("RUNNER_TOOL_CACHE")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| {
+                TOOL_CACHE_PATHS
+                    .iter()
+                    .find_map(|path| {
+                        let path = PathBuf::from(path);
+                        // Exists and can be written to
+                        if let Err(err) = std::fs::create_dir_all(&path) {
+                            log::trace!("Error creating tool cache dir: {:?}", err);
+                            None
+                        } else {
+                            log::debug!("Using tool cache found at: {:?}", path);
+                            Some(path)
+                        }
+                    })
+                    .unwrap_or_else(|| PathBuf::from("./.toolcache").canonicalize().unwrap())
+            });
+
+        if !tool_cache.exists() {
+            log::debug!("Creating tool cache at: {:?}", tool_cache);
+            std::fs::create_dir_all(&tool_cache).unwrap_or_else(|_| {
+                panic!("Failed to create tool cache directory: {:?}", tool_cache)
+            });
+        }
+
+        Self { tool_cache }
     }
 
     /// Get the platform for the tool cache
