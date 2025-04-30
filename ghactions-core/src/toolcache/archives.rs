@@ -51,7 +51,7 @@ impl ToolCache {
         tokio::process::Command::new("tar")
             .arg("-xzf")
             .arg(tarball)
-            .arg("-O")
+            .arg("-C")
             .arg(output)
             .spawn()?
             .wait()
