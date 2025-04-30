@@ -42,7 +42,13 @@ tag-name = "v{{version}}"
 [features]
 default = ["log", "macros", "octocrab", "toolcache"]
 generate = ["ghactions-derive/generate"]
+
+# Toolcache features
 toolcache = ["ghactions-core/toolcache"]
+toolcache-all = ["toolcache", "toolcache-tarball", "toolcache-zip"]
+toolcache-tarball = ["toolcache", "ghactions-core/toolcache-tarball"]
+toolcache-zip = ["toolcache", "ghactions-core/toolcache-zip"]
+
 # Logging
 log = ["ghactions-derive/log", "ghactions-core/log", "dep:log"]
 dotenvy = ["ghactions-derive/dotenvy"]
