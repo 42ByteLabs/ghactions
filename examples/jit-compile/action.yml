@@ -12,15 +12,3 @@ outputs:
     value: ${{ steps.cargo-run.outputs.version }}
 runs:
   using: composite
-  steps:
-  - name: Compile / Install the Action binary
-    shell: bash
-    run: |-
-      set -e
-      cargo install --path "${{ github.action_path }}"
-  - id: cargo-run
-    name: Run the Action
-    shell: bash
-    run: |-
-      set -e
-      jit-compile

@@ -32,7 +32,7 @@ runs:
     env:
       ACTION_REPOSITORY: ${{ github.action_repository }}
       ACTION_REF: ${{ github.action_ref }}
-      BINARY_NAME: installer
+      BINARY_NAME: ${{ github.action }}
       GH_TOKEN: ${{ github.token }}
       RUNNER_OS: ${{ runner.os }}
       RUNNER_ARCH: ${{ runner.arch }}
@@ -44,7 +44,7 @@ runs:
       if [[ ! "$ACTION_REF" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           VERSION=$(gh release list --repo "$ACTION_REPOSITORY" --limit 1 | awk '{print $1}')
       else
-          VERSION="v${ACTION_REF}"
+          VERSION="v${VERSION}"
       fi
       echo "GitHub Action Repository :: $ACTION_REPOSITORY (${VERSION})"
       echo "Runner :: $RUNNER_OS ($RUNNER_ARCH)"
@@ -72,4 +72,4 @@ runs:
     shell: bash
     run: |-
       set -e
-      installer
+      ${{ github.action }}
