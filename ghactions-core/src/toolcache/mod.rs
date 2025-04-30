@@ -26,4 +26,5 @@ pub mod tool;
 
 pub use arch::ToolCacheArch;
 pub use cache::ToolCache;
+pub use platform::ToolPlatform;
 pub use tool::Tool;
