@@ -68,7 +68,31 @@ pub trait ActionTrait {
         let key = key.into();
         let value = value.into();
 
+<<<<<<< Updated upstream
         setoutput!(key, value);
+=======
+        let output_file = Self::get_output_path();
+        let output_path = PathBuf::from(output_file.clone());
+
+        if !output_path.exists() {
+            #[cfg(feature = "log")]
+            log::debug!("Creating output file: {}", output_path.display());
+            std::fs::File::create(&output_path)?;
+        }
+
+        match std::fs::OpenOptions::new().append(true).open(output_file) {
+            Ok(mut file) => {
+                writeln!(file, "{key}={value}")?;
+            }
+            Err(e) => {
+                #[cfg(feature = "log")]
+                log::error!("Failed to open output file: {e}");
+
+                // If we can't open the file, print to stdout
+                println!("::set-output name={key}::{value}");
+            }
+        }
+>>>>>>> Stashed changes
 
         Ok(())
     }
@@ -112,6 +136,28 @@ pub trait ActionTrait {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    /// Get the GitHub Actions Output File
+    ///
+    /// https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+    fn get_output_path() -> String {
+        if let Ok(ghout) = std::env::var("GITHUB_OUTPUT") {
+            #[cfg(feature = "log")]
+            log::debug!("GITHUB_OUTPUT: {ghout}");
+            ghout
+        } else if let Ok(ghout) = std::env::var("GITHUB_STATE") {
+            #[cfg(feature = "log")]
+            log::debug!("GITHUB_STATE: {ghout}");
+            ghout
+        } else {
+            #[cfg(feature = "log")]
+            log::debug!("Default Output: /tmp/github_actions.env");
+            "/tmp/github_actions.env".to_string()
+        }
+    }
+
+>>>>>>> Stashed changes
     /// GetHub Server URL (default: https://github.com)
     fn get_server_url(&self) -> String {
         Self::get_input("GITHUB_SERVER_URL").unwrap_or_else(|_| "https://github.com".into())
@@ -127,8 +173,10 @@ pub trait ActionTrait {
     }
 
     /// Get the GitHub Token
+    ///
+    /// Check both `GITHUB_TOKEN` and `ACTIONS_RUNTIME_TOKEN` environment variables
     fn get_token(&self) -> Result<String, ActionsError> {
-        Self::get_input("GITHUB_TOKEN")
+        Self::get_input("GITHUB_TOKEN").or_else(|_| Self::get_input("ACTIONS_RUNTIME_TOKEN"))
     }
     /// Get the GitHub SHA
     fn get_sha(&self) -> Result<String, ActionsError> {
