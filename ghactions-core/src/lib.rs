@@ -85,7 +85,7 @@ pub trait ActionTrait {
             }
             Err(e) => {
                 #[cfg(feature = "log")]
-                log::error!("Failed to open output file: {}", e);
+                log::error!("Failed to open output file: {e}");
 
                 // If we can't open the file, print to stdout
                 println!("::set-output name={key}::{value}");
@@ -140,11 +140,11 @@ pub trait ActionTrait {
     fn get_output_path() -> String {
         if let Ok(ghout) = std::env::var("GITHUB_OUTPUT") {
             #[cfg(feature = "log")]
-            log::debug!("GITHUB_OUTPUT: {}", ghout);
+            log::debug!("GITHUB_OUTPUT: {ghout}");
             ghout
         } else if let Ok(ghout) = std::env::var("GITHUB_STATE") {
             #[cfg(feature = "log")]
-            log::debug!("GITHUB_STATE: {}", ghout);
+            log::debug!("GITHUB_STATE: {ghout}");
             ghout
         } else {
             #[cfg(feature = "log")]
@@ -168,8 +168,10 @@ pub trait ActionTrait {
     }
 
     /// Get the GitHub Token
+    ///
+    /// Checks both the `GITHUB_TOKEN` and `ACTIONS_RUNTIME_TOKEN` environment variables
     fn get_token(&self) -> Result<String, ActionsError> {
-        Self::get_input("GITHUB_TOKEN")
+        Self::get_input("GITHUB_TOKEN").or_else(|_| Self::get_input("ACTIONS_RUNTIME_TOKEN"))
     }
     /// Get the GitHub SHA
     fn get_sha(&self) -> Result<String, ActionsError> {
