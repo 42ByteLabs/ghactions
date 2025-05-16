@@ -15,6 +15,7 @@ jobs:
     uses: 42ByteLabs/.github/.github/workflows/cargo.yml@main
     permissions:
       contents: read
+      actions: read
       security-events: write
     secrets: inherit
 
