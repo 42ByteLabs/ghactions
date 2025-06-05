@@ -107,31 +107,59 @@ pub trait ActionTrait {
         }
 
         match self.get_token() {
-            Ok(token) => Ok(octocrab::Octocrab::builder()
-                .base_uri(self.get_api_url())
-                .map_err(|e| ActionsError::OctocrabError(e.to_string()))?
-                .add_header(
-                    http::header::ACCEPT,
-                    "application/vnd.github.v3+json".to_string(),
-                )
-                .personal_token(token)
-                .build()
-                .map_err(|e| ActionsError::OctocrabError(e.to_string()))?),
+            Ok(token) => self.octocrab_with_token(token),
             Err(_) => {
                 #[cfg(feature = "log")]
                 log::warn!("No GitHub Token provided");
 
-                Ok(octocrab::Octocrab::builder()
-                    .base_uri(self.get_api_url())
-                    .map_err(|e| ActionsError::OctocrabError(e.to_string()))?
-                    .add_header(
-                        http::header::ACCEPT,
-                        "application/vnd.github.v3+json".to_string(),
-                    )
-                    .build()
-                    .map_err(|e| ActionsError::OctocrabError(e.to_string()))?)
+                self.octocrab_without_token()
             }
         }
+    }
+
+    /// Get the Octocrab instance with a specific token
+    #[cfg(feature = "octocrab")]
+    fn octocrab_with_token(
+        &self,
+        token: impl Into<String>,
+    ) -> Result<octocrab::Octocrab, ActionsError> {
+        let token = token.into();
+        #[cfg(feature = "log")]
+        log::debug!("Creating Octocrab instance with token");
+
+        if token.is_empty() {
+            return Err(ActionsError::OctocrabError(
+                "Token cannot be empty".to_string(),
+            ));
+        }
+
+        octocrab::Octocrab::builder()
+            .base_uri(self.get_api_url())
+            .map_err(|e| ActionsError::OctocrabError(e.to_string()))?
+            .add_header(
+                http::header::ACCEPT,
+                "application/vnd.github.v3+json".to_string(),
+            )
+            .personal_token(token)
+            .build()
+            .map_err(|e| ActionsError::OctocrabError(e.to_string()))
+    }
+
+    /// Get the Octocrab instance without a token
+    #[cfg(feature = "octocrab")]
+    fn octocrab_without_token(&self) -> Result<octocrab::Octocrab, ActionsError> {
+        #[cfg(feature = "log")]
+        log::debug!("Creating Octocrab instance without token");
+
+        octocrab::Octocrab::builder()
+            .base_uri(self.get_api_url())
+            .map_err(|e| ActionsError::OctocrabError(e.to_string()))?
+            .add_header(
+                http::header::ACCEPT,
+                "application/vnd.github.v3+json".to_string(),
+            )
+            .build()
+            .map_err(|e| ActionsError::OctocrabError(e.to_string()))
     }
 
     /// Get the GitHub Actions Output File
