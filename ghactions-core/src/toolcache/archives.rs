@@ -40,6 +40,8 @@ impl ToolCache {
         let file = std::fs::File::open(tarball)?;
         let decoder = flate2::read::GzDecoder::new(file);
         let mut archive = tar::Archive::new(decoder);
+        archive.set_preserve_permissions(true);
+
         archive.unpack(output)?;
 
         Ok(())
