@@ -136,16 +136,8 @@ impl Parse for ActionsAttribute {
                     || lit.value().starts_with("./")
                     || lit.value().starts_with("/")
                 {
-                    if let Ok(v) = std::path::PathBuf::try_from(lit.value()) {
-                        value_span = Some(lit.span());
-
-                        Some(ActionsAttributeValue::Path(v))
-                    } else {
-                        return Err(syn::Error::new(
-                            lit.span(),
-                            format!("Invalid path: {}", lit.value()),
-                        ));
-                    }
+                    value_span = Some(lit.span());
+                    Some(ActionsAttributeValue::Path(lit.value().into()))
                 } else {
                     value_span = Some(lit.span());
                     Some(ActionsAttributeValue::String(lit.value()))
