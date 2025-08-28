@@ -1,4 +1,6 @@
 //! # ToolCache Archives
+#[cfg(not(feature = "toolcache-zip"))]
+use std::path::Path;
 use std::path::PathBuf;
 
 use crate::ActionsError;
@@ -128,7 +130,7 @@ impl ToolCache {
     ///
     /// For native support, the `toolcache-zip` feature must be enabled.
     #[cfg(not(feature = "toolcache-zip"))]
-    async fn extract_zip(&self, zipfile: &PathBuf, output: &PathBuf) -> Result<(), ActionsError> {
+    async fn extract_zip(&self, zipfile: &Path, output: &PathBuf) -> Result<(), ActionsError> {
         tokio::process::Command::new("unzip")
             .arg(zipfile.display().to_string())
             .arg("-d")

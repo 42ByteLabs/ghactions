@@ -100,7 +100,6 @@ macro_rules! group {
 /// # fn foo() {
 /// groupend!();
 /// # }
-
 /// ```
 #[macro_export(local_inner_macros)]
 macro_rules! groupend {

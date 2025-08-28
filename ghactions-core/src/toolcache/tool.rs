@@ -136,7 +136,7 @@ impl TryFrom<PathBuf> for Tool {
     fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
         let parts: Vec<&str> = value.iter().map(|p| p.to_str().unwrap()).collect();
 
-        let arch = match parts.get(parts.len() - 1) {
+        let arch = match parts.last() {
             Some(arch) => arch,
             None => {
                 return Err(crate::errors::ActionsError::ToolCacheError(
@@ -194,12 +194,13 @@ mod tests {
     #[test]
     #[cfg(target_os = "linux")]
     fn test_tool_path() {
-        let cwd = PathBuf::from(std::env::current_dir().unwrap())
+        let cwd = std::env::current_dir()
+            .unwrap()
             .join("..")
             .canonicalize()
             .unwrap();
 
-        let toolcache_root = PathBuf::from(cwd.clone());
+        let toolcache_root = cwd.clone();
         let tool_path = Tool::tool_path(&toolcache_root, "node", "12.7.0", ToolCacheArch::X64);
 
         assert_eq!(tool_path, cwd.join("node/12.7.0/x64/"));

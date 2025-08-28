@@ -132,20 +132,15 @@ impl Parse for ActionsAttribute {
                 let lit: LitStr = input.parse()?;
 
                 // TODO: Is this correct?
-                if lit.value().starts_with("..")
+                if (lit.value().starts_with("..")
                     || lit.value().starts_with("./")
-                    || lit.value().starts_with("/")
+                    || (lit.value().starts_with("/")))
+                    && key != Some(ActionsAttributeKeys::Entrypoint)
+                // Only treat as path if it's not a Docker entrypoint, as
+                // we cannot check this for file existence
                 {
-                    if let Ok(v) = std::path::PathBuf::try_from(lit.value()) {
-                        value_span = Some(lit.span());
-
-                        Some(ActionsAttributeValue::Path(v))
-                    } else {
-                        return Err(syn::Error::new(
-                            lit.span(),
-                            format!("Invalid path: {}", lit.value()),
-                        ));
-                    }
+                    value_span = Some(lit.span());
+                    Some(ActionsAttributeValue::Path(lit.value().into()))
                 } else {
                     value_span = Some(lit.span());
                     Some(ActionsAttributeValue::String(lit.value()))
@@ -224,10 +219,10 @@ impl ActionsAttribute {
                     // TODO: Validate path
                     Ok(())
                 } else if let Some(ActionsAttributeValue::String(_)) = &self.value {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.value_span.unwrap(),
                         "Path attribute must start with `.` or `/` (e.g. `./action.yml`)",
-                    ));
+                    ))
                 } else {
                     Err(syn::Error::new(
                         self.span.span(),
@@ -282,10 +277,19 @@ impl ActionsAttribute {
                             "Image attribute must have a valid path value (file not found)",
                         ))
                     }
+                } else if let Some(ActionsAttributeValue::String(image_ref)) = &self.value {
+                    if image_ref.starts_with("docker://") {
+                        Ok(())
+                    } else {
+                        Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Image attribute must start with 'docker://'",
+                        ))
+                    }
                 } else {
                     Err(syn::Error::new(
                         self.span.span(),
-                        "Image attribute must have a string value",
+                        "Image attribute must have a string or path value",
                     ))
                 }
             }
