@@ -30,10 +30,11 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
 
                 match name.as_str() {
                     "input" => {
-                        let mut input = ActionInput::default();
-
-                        input.field_name = field_name.to_string();
-                        input.r#type = field_type.to_token_stream().to_string();
+                        let mut input = ActionInput {
+                            field_name: field_name.to_string(),
+                            r#type: field_type.to_token_stream().to_string(),
+                            ..Default::default()
+                        };
 
                         field_attributes.iter().for_each(|attr| match attr {
                             ActionsAttribute {
@@ -89,22 +90,18 @@ pub(crate) fn derive_parser(ast: &DeriveInput) -> Result<TokenStream, syn::Error
                         if let Some(ref step_id) = action.output_value_step_id {
                             output.value = Some(format!(
                                 "${{{{ steps.{}.outputs.{} }}}}",
-                                step_id,
-                                field_name.to_string()
+                                step_id, field_name
                             ));
                         }
 
-                        match field_attributes
+                        if let Some(ActionsAttribute {
+                            value: Some(ActionsAttributeValue::String(description)),
+                            ..
+                        }) = field_attributes
                             .iter()
                             .find(|attr| attr.key == Some(ActionsAttributeKeys::Description))
                         {
-                            Some(ActionsAttribute {
-                                value: Some(ActionsAttributeValue::String(description)),
-                                ..
-                            }) => {
-                                output.description = Some(description.clone());
-                            }
-                            _ => {}
+                            output.description = Some(description.clone());
                         }
 
                         action.outputs.insert(field_name.to_string(), output);
@@ -245,7 +242,7 @@ pub(crate) fn generate_traits(
     Ok(stream)
 }
 
-fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn::Error> {
+fn load_actionyaml(attributes: &[ActionsAttribute]) -> Result<ActionYML, syn::Error> {
     let mut action = ActionYML::default();
 
     for attr in attributes.iter() {

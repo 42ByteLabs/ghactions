@@ -219,10 +219,10 @@ impl ActionsAttribute {
                     // TODO: Validate path
                     Ok(())
                 } else if let Some(ActionsAttributeValue::String(_)) = &self.value {
-                    return Err(syn::Error::new(
+                    Err(syn::Error::new(
                         self.value_span.unwrap(),
                         "Path attribute must start with `.` or `/` (e.g. `./action.yml`)",
-                    ));
+                    ))
                 } else {
                     Err(syn::Error::new(
                         self.span.span(),

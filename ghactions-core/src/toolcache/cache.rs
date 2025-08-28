@@ -226,7 +226,8 @@ mod tests {
 
     fn local_toolcache() -> (PathBuf, ToolCache) {
         // working dir + examples/toolcache
-        let cwd = PathBuf::from(std::env::current_dir().unwrap())
+        let cwd = std::env::current_dir()
+            .unwrap()
             .join("..")
             .canonicalize()
             .unwrap();
