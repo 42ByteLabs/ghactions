@@ -277,10 +277,19 @@ impl ActionsAttribute {
                             "Image attribute must have a valid path value (file not found)",
                         ))
                     }
+                } else if let Some(ActionsAttributeValue::String(image_ref)) = &self.value {
+                    if image_ref.starts_with("docker://") {
+                        Ok(())
+                    } else {
+                        Err(syn::Error::new(
+                            self.value_span.unwrap(),
+                            "Image attribute must start with 'docker://'",
+                        ))
+                    }
                 } else {
                     Err(syn::Error::new(
                         self.span.span(),
-                        "Image attribute must have a string value",
+                        "Image attribute must have a string or path value",
                     ))
                 }
             }

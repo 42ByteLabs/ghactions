@@ -298,7 +298,16 @@ fn load_actionyaml(attributes: &Vec<ActionsAttribute>) -> Result<ActionYML, syn:
                 action.mode = ActionMode::Container;
 
                 if let Some(ActionsAttributeValue::Path(ref value)) = attr.value {
-                    action.set_container_image(value.to_path_buf());
+                    action.set_container_image(value.display().to_string());
+                } else if let Some(ActionsAttributeValue::String(ref value)) = attr.value {
+                    // Validate the string is not empty
+                    if value.is_empty() {
+                        return Err(syn::Error::new(
+                            attr.value_span.unwrap(),
+                            "Image attribute cannot be empty",
+                        ));
+                    }
+                    action.set_container_image(value.clone());
                 }
             }
             Some(ActionsAttributeKeys::Entrypoint) => {

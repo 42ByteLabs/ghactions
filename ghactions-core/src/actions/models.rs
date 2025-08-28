@@ -88,7 +88,7 @@ impl Default for ActionYML {
 
 impl ActionYML {
     /// Set the Action to a Container Image based Action
-    pub fn set_container_image(&mut self, image: PathBuf) {
+    pub fn set_container_image(&mut self, image: String) {
         self.runs.using = ActionRunUsing::Docker;
         self.runs.image = Some(image);
         self.runs.steps = None;
@@ -317,7 +317,7 @@ pub struct ActionRuns {
 
     /// Container Image (container actions only)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub image: Option<PathBuf>,
+    pub image: Option<String>,
     /// Arguments (container actions only)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<String>>,
