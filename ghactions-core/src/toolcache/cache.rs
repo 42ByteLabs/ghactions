@@ -181,10 +181,12 @@ impl ToolCache {
         // TODO: GitHub auth for private repos
 
         let mut successful = false;
+        let mut counter = self.retry_count;
         let client = reqwest::Client::new();
 
-        while self.retry_count > 0 {
-            debug!("Attempting download, retries left: {}", self.retry_count);
+        while counter > 0 {
+            debug!("Attempting download, retries left: {}", counter);
+            counter -= 1;
 
             let mut resp = client
                 .get(url.clone())
@@ -203,7 +205,7 @@ impl ToolCache {
                 log::warn!(
                     "Server error downloading asset: {:?}, retrying... {}",
                     resp.status(),
-                    self.retry_count
+                    counter
                 );
                 tokio::time::sleep(std::time::Duration::from_secs(2)).await;
                 continue;
