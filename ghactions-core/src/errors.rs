@@ -40,6 +40,10 @@ pub enum ActionsError {
     #[error("Octocrab Error: `{0}`")]
     OctocrabError(String),
 
+    /// Download Error
+    #[error("Download Error: `{0}`")]
+    DownloadError(String),
+
     /// HTTP Header Error
     #[cfg(feature = "toolcache")]
     #[error("HTTP Header Error: `{0}`")]
