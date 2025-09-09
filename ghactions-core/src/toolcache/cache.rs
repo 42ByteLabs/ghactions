@@ -13,6 +13,9 @@ use std::str::FromStr;
 use super::{Tool, ToolCacheArch, platform::ToolPlatform};
 use crate::ActionsError;
 
+/// Number of times to retry a download
+const RETRY_COUNT: u8 = 10;
+
 /// Linux and MacOS Tool Cache Paths
 #[cfg(target_family = "unix")]
 const TOOL_CACHE_PATHS: [&str; 3] = [
@@ -33,6 +36,9 @@ const TOOL_CACHE_PATHS: [&str; 3] = [
 pub struct ToolCache {
     /// Tool Cache Path
     pub tool_cache: PathBuf,
+
+    /// Number of times to retry a download
+    pub retry_count: u8,
 }
 
 impl ToolCache {
@@ -80,7 +86,10 @@ impl ToolCache {
             });
         }
 
-        Self { tool_cache }
+        Self {
+            tool_cache,
+            retry_count: RETRY_COUNT,
+        }
     }
 
     /// Get the platform for the tool cache
@@ -101,6 +110,7 @@ impl ToolCache {
     pub fn get_tool_cache(&self) -> &PathBuf {
         &self.tool_cache
     }
+
     /// Find a tool in the cache
     pub async fn find(
         &self,
@@ -145,6 +155,11 @@ impl ToolCache {
         Tool::tool_path(self.get_tool_cache(), tool, version, self.arch())
     }
 
+    /// Set the number of times to retry a download (default is 10)
+    pub fn set_retry_count(&mut self, count: u8) {
+        self.retry_count = count;
+    }
+
     /// Download an asset from a release
     #[cfg(feature = "octocrab")]
     pub async fn download_asset(
@@ -164,22 +179,51 @@ impl ToolCache {
         let mut file = tokio::fs::File::create(&output).await?;
 
         // TODO: GitHub auth for private repos
-        let client = reqwest::Client::new();
-        let mut resp = client
-            .get(url)
-            .header(
-                http::header::ACCEPT,
-                http::header::HeaderValue::from_str(&content_type)?,
-            )
-            .header(
-                http::header::USER_AGENT,
-                http::header::HeaderValue::from_str("ghactions")?,
-            )
-            .send()
-            .await?;
 
-        while let Some(chunk) = resp.chunk().await? {
-            file.write_all(&chunk).await?;
+        let mut successful = false;
+        let client = reqwest::Client::new();
+
+        while self.retry_count > 0 {
+            debug!("Attempting download, retries left: {}", self.retry_count);
+
+            let mut resp = client
+                .get(url.clone())
+                .header(
+                    http::header::ACCEPT,
+                    http::header::HeaderValue::from_str(&content_type)?,
+                )
+                .header(
+                    http::header::USER_AGENT,
+                    http::header::HeaderValue::from_str("ghactions")?,
+                )
+                .send()
+                .await?;
+
+            if resp.status().is_server_error() {
+                log::warn!(
+                    "Server error downloading asset: {:?}, retrying... {}",
+                    resp.status(),
+                    self.retry_count
+                );
+                tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+                continue;
+            }
+
+            while let Some(chunk) = resp.chunk().await? {
+                file.write_all(&chunk).await?;
+            }
+
+            log::debug!("Download complete");
+            successful = true;
+            break;
+        }
+
+        if !successful {
+            log::error!("Failed to download asset: {:?}", url);
+            return Err(ActionsError::DownloadError(format!(
+                "Failed to download asset: {:?}",
+                url
+            )));
         }
 
         Ok(())
@@ -192,7 +236,10 @@ impl From<&str> for ToolCache {
         if !tool_cache.exists() {
             panic!("Tool Cache does not exist: {:?}", tool_cache);
         }
-        Self { tool_cache }
+        Self {
+            tool_cache,
+            retry_count: RETRY_COUNT,
+        }
     }
 }
 
@@ -202,7 +249,10 @@ impl From<PathBuf> for ToolCache {
         if !tool_cache.exists() {
             panic!("Tool Cache does not exist: {:?}", tool_cache);
         }
-        Self { tool_cache }
+        Self {
+            tool_cache,
+            retry_count: RETRY_COUNT,
+        }
     }
 }
 
@@ -216,7 +266,10 @@ impl Default for ToolCache {
             tool_cache = tool_cache.canonicalize().unwrap();
         }
 
-        Self { tool_cache }
+        Self {
+            tool_cache,
+            retry_count: RETRY_COUNT,
+        }
     }
 }
 
