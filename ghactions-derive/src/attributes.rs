@@ -132,12 +132,12 @@ impl Parse for ActionsAttribute {
                 let lit: LitStr = input.parse()?;
 
                 // TODO: Is this correct?
-                if (lit.value().starts_with("..")
+                if lit.value().starts_with("docker://") {
+                    value_span = Some(lit.span());
+                    Some(ActionsAttributeValue::String(lit.value()))
+                } else if lit.value().starts_with("..")
                     || lit.value().starts_with("./")
-                    || (lit.value().starts_with("/")))
-                    && key != Some(ActionsAttributeKeys::Entrypoint)
-                // Only treat as path if it's not a Docker entrypoint, as
-                // we cannot check this for file existence
+                    || (lit.value().starts_with("/"))
                 {
                     value_span = Some(lit.span());
                     Some(ActionsAttributeValue::Path(lit.value().into()))
