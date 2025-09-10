@@ -3,7 +3,7 @@ resolver = "2"
 members = [".", "ghactions-core", "ghactions-derive"]
 
 [workspace.package]
-version = "0.16.5"
+version = "0.17.0"
 license = "MIT"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
@@ -58,8 +58,8 @@ macros = ["ghactions-core/macros"]
 octocrab = ["ghactions-core/octocrab"]
 
 [dependencies]
-ghactions-core = { version = "^0.16", path = "ghactions-core" }
-ghactions-derive = { version = "^0.16", path = "ghactions-derive" }
+ghactions-core = { version = "^0.17", path = "ghactions-core" }
+ghactions-derive = { version = "^0.17", path = "ghactions-derive" }
 
 log = { version = "0.4", optional = true }
 
