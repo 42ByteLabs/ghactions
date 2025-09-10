@@ -21,7 +21,7 @@ use ghactions::prelude::*;
     // dynamically based on the struct fields
     path = "./examples/advanced/action.yml",
     // Set the Docker Image for the Action
-    image = "./examples/advanced/Dockerfile",
+    image = "docker://ghcr.io/42bytelabs/ghactions:latest",
 )]
 struct MyAction {
     /// Repository

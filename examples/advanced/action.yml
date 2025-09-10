@@ -24,4 +24,4 @@ outputs:
     description: Output Version
 runs:
   using: docker
-  image: ./examples/advanced/Dockerfile
+  image: docker://ghcr.io/42bytelabs/ghactions:latest
