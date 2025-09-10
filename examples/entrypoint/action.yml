@@ -9,7 +9,10 @@ inputs:
 outputs:
   version:
     description: Output Version
-    value: ${{ steps.cargo-run.outputs.version }}
+    value: ${{ steps.entrypoint-script.outputs.version }}
 runs:
   using: composite
-  steps: []
+  steps:
+  - id: entrypoint-script
+    shell: bash
+    run: ${{ github.action_path }}/examples/entrypoint/entrypoint.sh
