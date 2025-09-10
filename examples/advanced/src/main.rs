@@ -81,7 +81,7 @@ async fn main() -> Result<()> {
         repository
             .full_name
             .ok_or(anyhow!("Failed to get full name"))?,
-        repository.url.to_string()
+        repository.url
     );
 
     groupend!();
