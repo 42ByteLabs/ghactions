@@ -163,10 +163,13 @@ There are 3 ways to generate the `action.yml` file:
 
 - [`image` mode](./examples/advanced): 
   - This will generate the `action.yml` file with a container `image`.
+  - Image can be a path to a Dockerfile (e.g. `./Dockerfile`).
+  - Image can be a docker image using the `docker://` prefix.
 - [`entrypoint` mode](./examples/entrypoint):
   - This will generate a composite Action with an entrypoint script.
 - [`installer` mode](./examples/installer):
   - This will generate a composite Action with an installer script.
+  - Only supports Linux and macOS runners are supported.
 
 ```rust no_run
 use ghactions::prelude::*;
@@ -179,6 +182,15 @@ use ghactions::prelude::*;
     entrypoint = "./examples/entrypoint/entrypoint.sh",
 )]
 struct ContainerAction {
+    // ...
+}
+
+#[derive(Actions, Debug, Clone)]
+#[action(
+    // Point to a Docker image on DockerHub or GitHub Container Registry
+    image = "docker://ghcr.io/42bytelabs/ghactions:latest", 
+)]
+struct ContainerSocketAction {
     // ...
 }
 
