@@ -1,6 +1,5 @@
 //! Logging utilities for GitHub Actions
 use env_logger::Builder;
-use std::env;
 use std::io::Write;
 
 /// Initialise and create a `env_logger::Builder` which follows the
@@ -13,7 +12,10 @@ pub fn init_logger() -> Builder {
     builder.target(env_logger::Target::Stdout);
 
     // Find and setup the correct log level
-    builder.filter(None, get_log_level());
+    let log_level = get_log_level();
+    log::debug!("Setting log level to {:?}", log_level);
+
+    builder.filter(None, log_level);
     builder.write_style(env_logger::WriteStyle::Always);
 
     // Custom Formatter for Actions
@@ -30,19 +32,15 @@ pub fn init_logger() -> Builder {
 }
 
 /// Get the Log Level for the logger
+///
+/// The log level is determined by the presence of the
+/// `DEBUG` or `RUNNER_DEBUG` environment variables.
 fn get_log_level() -> log::LevelFilter {
-    // DEBUG
-    match env::var("DEBUG") {
-        Ok(_value) => return log::LevelFilter::Debug,
-        Err(_err) => (),
+    if std::env::var("DEBUG").is_ok() || std::env::var("RUNNER_DEBUG").is_ok() {
+        log::LevelFilter::Debug
+    } else {
+        log::LevelFilter::Info
     }
-    // ACTIONS_RUNNER_DEBUG
-    match env::var("ACTIONS_RUNNER_DEBUG") {
-        Ok(_value) => return log::LevelFilter::Debug,
-        Err(_err) => (),
-    };
-
-    log::LevelFilter::Info
 }
 
 /// Error for files (including line and column numbers)

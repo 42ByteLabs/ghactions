@@ -1,0 +1,52 @@
+[package]
+name = "ghactions-toolcache"
+version.workspace = true
+license.workspace = true
+description.workspace = true
+keywords.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+
+[package.metadata.release]
+shared-version = true
+tag-name = "v{{version}}"
+
+[features]
+default = ["log"]
+all = ["tarball", "zip", "download", "log"]
+
+tarball = ["dep:flate2", "dep:tar"]
+zip = ["dep:flate2", "dep:zip"]
+
+download = ["api"]
+api = ["dep:octocrab", "dep:http"]
+
+log = ["dep:log"]
+
+[dependencies]
+glob = "^0.3"
+tokio = "1"
+url = "^2.5"
+reqwest = "^0.12"
+thiserror = "^2.0"
+log = { version = "^0.4", optional = true }
+
+# Tarball
+flate2 = { version = "^1.1", optional = true }
+tar = { version = "^0.4", optional = true }
+# Zip
+zip = { version = "^5.0", optional = true }
+
+# GitHub API
+octocrab = { version = "^0.44", optional = true }
+http = { version = "^1.3", optional = true }
+
+[dev-dependencies]
+anyhow = "1"
+ghactions = { path = "../" }
+

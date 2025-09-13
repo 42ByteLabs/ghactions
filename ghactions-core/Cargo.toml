@@ -23,12 +23,14 @@ macros = []
 octocrab = ["dep:octocrab", "dep:http", "dep:tokio"]
 
 # Toolcache features
-toolcache = ["dep:glob", "dep:url", "dep:reqwest", "dep:tokio"]
+toolcache = ["dep:ghactions-toolcache"]
 toolcache-all = ["toolcache", "toolcache-tarball", "toolcache-zip"]
-toolcache-tarball = ["toolcache", "dep:flate2", "dep:tar"]
-toolcache-zip = ["toolcache", "dep:flate2", "dep:zip"]
+toolcache-tarball = ["toolcache", "ghactions-toolcache/tarball"]
+toolcache-zip = ["toolcache", "ghactions-toolcache/zip"]
 
 [dependencies]
+ghactions-toolcache = { version = "^0.16", path = "../ghactions-toolcache", optional = true }
+
 thiserror = "^2.0"
 serde = { version = "^1.0", features = ["derive"] }
 serde_yaml = "^0.9"

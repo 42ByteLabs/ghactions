@@ -626,6 +626,7 @@ dependencies = [
  "ghactions",
  "ghactions-core",
  "ghactions-derive",
+ "ghactions-toolcache",
  "http",
  "log",
  "octocrab",
@@ -640,6 +641,7 @@ dependencies = [
  "env_logger",
  "flate2",
  "ghactions",
+ "ghactions-toolcache",
  "glob",
  "http",
  "indexmap",
@@ -667,6 +669,25 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "ghactions-toolcache"
+version = "0.16.5"
+dependencies = [
+ "anyhow",
+ "flate2",
+ "ghactions",
+ "glob",
+ "http",
+ "log",
+ "octocrab",
+ "reqwest",
+ "tar",
+ "thiserror",
+ "tokio",
+ "url",
+ "zip",
 ]
 
 [[package]]

@@ -6,11 +6,11 @@
 pub use ghactions_core::ActionTrait;
 pub use ghactions_core::ActionsError;
 pub use ghactions_core::logging::init_logger;
-#[cfg(feature = "toolcache")]
-pub use ghactions_core::toolcache::{ToolCache, ToolCacheArch, ToolPlatform};
 #[cfg(feature = "log")]
 pub use ghactions_core::{errorf, group, groupend, setoutput};
 pub use ghactions_derive::Actions;
+#[cfg(feature = "toolcache")]
+pub use ghactions_toolcache::{ToolCache, ToolCacheArch, ToolPlatform};
 
 /// Prelude module to re-export the most commonly used types
 pub mod prelude {
@@ -23,10 +23,12 @@ pub mod prelude {
     // Structs / Functions
     pub use ghactions_core::errors::ActionsError;
 
-    #[cfg(feature = "toolcache")]
-    pub use ghactions_core::toolcache::ToolCache;
     #[cfg(feature = "log")]
     pub use ghactions_core::{errorf, group, groupend, setoutput};
     #[cfg(feature = "log")]
     pub use log::{debug, error, info, trace, warn};
+
+    // Tool Cache
+    #[cfg(feature = "toolcache")]
+    pub use ghactions_toolcache::ToolCache;
 }

@@ -13,6 +13,12 @@ pub enum ToolCacheArch {
     Any,
 }
 
+impl From<&ToolCacheArch> for ToolCacheArch {
+    fn from(arch: &ToolCacheArch) -> Self {
+        arch.clone()
+    }
+}
+
 impl From<String> for ToolCacheArch {
     fn from(arch: String) -> Self {
         match arch.to_lowercase().as_str() {
