@@ -3,7 +3,7 @@
 use std::fmt::Display;
 
 /// Tool Cache CPU Architecture enum
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToolCacheArch {
     /// amd64/x86_64
     X64,

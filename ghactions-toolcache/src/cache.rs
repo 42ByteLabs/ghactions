@@ -76,7 +76,7 @@ impl ToolCache {
     /// By default this is set to the current platform of the system.
     /// You can override this by using the `platform` method on the `ToolCacheBuilder`.
     pub fn platform(&self) -> ToolPlatform {
-        self.platform.clone()
+        self.platform
     }
 
     /// Get the architecture for the tool cache
@@ -84,7 +84,7 @@ impl ToolCache {
     /// By default this is set to the current architecture of the system.
     /// You can override this by using the `arch` method on the `ToolCacheBuilder`.
     pub fn arch(&self) -> ToolCacheArch {
-        self.arch.clone()
+        self.arch
     }
 
     /// Get the Tool Cache Path
@@ -136,7 +136,7 @@ impl ToolCache {
             .find(|t| t.name() == tool)
             .ok_or_else(|| crate::ToolCacheError::ToolNotFound {
                 name: tool,
-                version: version,
+                version,
                 arch: Some(arch),
             })
     }

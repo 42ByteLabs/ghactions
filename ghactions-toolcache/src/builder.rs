@@ -7,6 +7,7 @@
 //! # Example
 //!
 //! ```no_run
+//! # #[cfg(feature = "download")] {
 //! # use anyhow::Result;
 //! use ghactions_toolcache::ToolCache;
 //!
@@ -20,6 +21,7 @@
 //!     .build();
 //!
 //! # Ok(())
+//! # }
 //! # }
 //! ```
 use std::path::PathBuf;
@@ -97,10 +99,7 @@ impl ToolCacheBuilder {
 
     /// Build the ToolCache
     pub fn build(&self) -> ToolCache {
-        let tool_cache = self
-            .tool_cache
-            .clone()
-            .unwrap_or_else(|| get_tool_cache_path());
+        let tool_cache = self.tool_cache.clone().unwrap_or_else(get_tool_cache_path);
         let arch = self
             .arch
             .clone()
@@ -110,9 +109,7 @@ impl ToolCacheBuilder {
                 _ => ToolCacheArch::Any,
             });
 
-        let platform = self
-            .platform
-            .unwrap_or_else(|| ToolPlatform::from_current_os());
+        let platform = self.platform.unwrap_or_else(ToolPlatform::from_current_os);
 
         ToolCache {
             tool_cache,
