@@ -30,7 +30,8 @@
 //! # Ok(())
 //! # }
 //! ```
-#[deny(missing_docs, unsafe_code)]
+#![deny(missing_docs, unsafe_code)]
+
 pub mod arch;
 pub mod archives;
 pub mod builder;
@@ -51,8 +52,11 @@ pub enum ToolCacheError {
     /// Tool not found in cache
     #[error("Tool not found in cache: {name} {version} {arch:?}")]
     ToolNotFound {
+        /// Tool name
         name: String,
+        /// Tool version
         version: String,
+        /// Tool architecture (if specified)
         arch: Option<ToolCacheArch>,
     },
 

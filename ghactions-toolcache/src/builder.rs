@@ -29,6 +29,9 @@ use crate::{
     cache::{RETRY_COUNT, get_tool_cache_path},
 };
 
+/// A builder for the ToolCache struct.
+///
+/// This allows you to customize the ToolCache instance before creating it.
 #[derive(Debug, Clone, Default)]
 pub struct ToolCacheBuilder {
     pub(crate) tool_cache: Option<PathBuf>,
@@ -36,6 +39,7 @@ pub struct ToolCacheBuilder {
     pub(crate) platform: Option<crate::platform::ToolPlatform>,
 
     pub(crate) retry_count: Option<u8>,
+    #[cfg(feature = "download")]
     pub(crate) client: Option<reqwest::Client>,
 }
 
@@ -85,6 +89,7 @@ impl ToolCacheBuilder {
     ///
     /// # Parameters
     /// - `client`: The `reqwest::Client` instance to use.
+    #[cfg(feature = "download")]
     pub fn client(mut self, client: reqwest::Client) -> Self {
         self.client = Some(client);
         self
@@ -118,9 +123,4 @@ impl ToolCacheBuilder {
             client: self.client.clone().unwrap_or_else(reqwest::Client::new),
         }
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
 }
