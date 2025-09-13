@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
-members = [".", "ghactions-core", "ghactions-derive"]
+members = [".", "ghactions-core", "ghactions-derive", "ghactions-toolcache"]
 
 [workspace.package]
-version = "0.16.5"
+version = "0.17.0"
 license = "MIT"
 description = "GitHub Actions Crate"
 keywords = ["github", "actions"]
