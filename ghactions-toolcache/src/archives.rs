@@ -1,11 +1,10 @@
 //! # ToolCache Archives
-#[cfg(not(feature = "toolcache-zip"))]
+#[cfg(not(feature = "zip"))]
 use std::path::Path;
 use std::path::PathBuf;
 
-use crate::ActionsError;
-
 use super::ToolCache;
+use crate::ToolCacheError;
 
 impl ToolCache {
     /// Extract an archive
@@ -13,9 +12,9 @@ impl ToolCache {
         &self,
         archive: &PathBuf,
         output: &PathBuf,
-    ) -> Result<(), ActionsError> {
+    ) -> Result<(), ToolCacheError> {
         let Some(extension) = archive.extension() else {
-            return Err(ActionsError::IoError(std::io::Error::new(
+            return Err(ToolCacheError::IoError(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 "Unknown archive format",
             )));
@@ -25,7 +24,7 @@ impl ToolCache {
             Some("zip") => self.extract_zip(archive, output).await,
             Some("gz") | Some("tgz") => self.extract_targz(archive, output).await,
             Some("tar") => self.extract_tarball(archive, output).await,
-            _ => Err(ActionsError::IoError(std::io::Error::new(
+            _ => Err(ToolCacheError::IoError(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 "Unknown archive format",
             )))?,
@@ -34,8 +33,12 @@ impl ToolCache {
 
     /// Extract a tarball (gzip compressed) natively in Rust using
     /// `flate2` and `tar` crates
-    #[cfg(feature = "toolcache-tarball")]
-    async fn extract_targz(&self, tarball: &PathBuf, output: &PathBuf) -> Result<(), ActionsError> {
+    #[cfg(feature = "tarball")]
+    async fn extract_targz(
+        &self,
+        tarball: &PathBuf,
+        output: &PathBuf,
+    ) -> Result<(), ToolCacheError> {
         log::debug!("Extracting tarball gzip: {:?}", tarball);
 
         // TODO: Security considerations?
@@ -50,8 +53,12 @@ impl ToolCache {
     }
 
     /// Extract a tarball using the `tar` command
-    #[cfg(not(feature = "toolcache-tarball"))]
-    async fn extract_targz(&self, tarball: &PathBuf, output: &PathBuf) -> Result<(), ActionsError> {
+    #[cfg(not(feature = "tarball"))]
+    async fn extract_targz(
+        &self,
+        tarball: &PathBuf,
+        output: &PathBuf,
+    ) -> Result<(), ToolCacheError> {
         tokio::process::Command::new("tar")
             .arg("-xzf")
             .arg(tarball)
@@ -62,7 +69,7 @@ impl ToolCache {
             .await?;
 
         if !output.exists() {
-            return Err(ActionsError::IoError(std::io::Error::new(
+            return Err(ToolCacheError::IoError(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
                 "Failed to extract tarball",
             )));
@@ -73,12 +80,12 @@ impl ToolCache {
 
     /// Extract a tarball (tar compressed) natively in Rust using
     /// `flate2` and `tar` crates
-    #[cfg(feature = "toolcache-tarball")]
+    #[cfg(feature = "tarball")]
     async fn extract_tarball(
         &self,
         tarball: &PathBuf,
         output: &PathBuf,
-    ) -> Result<(), ActionsError> {
+    ) -> Result<(), ToolCacheError> {
         log::debug!("Extracting tarball: {:?}", tarball);
 
         let file = std::fs::File::open(tarball)?;
@@ -89,12 +96,12 @@ impl ToolCache {
     }
 
     /// Extract a tarball using the `tar` command
-    #[cfg(not(feature = "toolcache-tarball"))]
+    #[cfg(not(feature = "tarball"))]
     async fn extract_tarball(
         &self,
         tarball: &PathBuf,
         output: &PathBuf,
-    ) -> Result<(), ActionsError> {
+    ) -> Result<(), ToolCacheError> {
         tokio::process::Command::new("tar")
             .arg("-xf")
             .arg(tarball)
@@ -105,7 +112,7 @@ impl ToolCache {
             .await?;
 
         if !output.exists() {
-            return Err(ActionsError::IoError(std::io::Error::new(
+            return Err(ToolCacheError::IoError(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
                 "Failed to extract tarball",
             )));
@@ -114,9 +121,9 @@ impl ToolCache {
         Ok(())
     }
 
-    #[cfg(feature = "toolcache-zip")]
+    #[cfg(feature = "zip")]
     /// Extract a zip file natively in Rust using the `zip` crate
-    async fn extract_zip(&self, zipfile: &PathBuf, output: &PathBuf) -> Result<(), ActionsError> {
+    async fn extract_zip(&self, zipfile: &PathBuf, output: &PathBuf) -> Result<(), ToolCacheError> {
         log::debug!("Extracting zipfile: {:?}", zipfile);
 
         let file = std::fs::File::open(zipfile)?;
@@ -129,8 +136,8 @@ impl ToolCache {
     /// Extract a zip file using the `unzip` command
     ///
     /// For native support, the `toolcache-zip` feature must be enabled.
-    #[cfg(not(feature = "toolcache-zip"))]
-    async fn extract_zip(&self, zipfile: &Path, output: &PathBuf) -> Result<(), ActionsError> {
+    #[cfg(not(feature = "zip"))]
+    async fn extract_zip(&self, zipfile: &Path, output: &PathBuf) -> Result<(), ToolCacheError> {
         tokio::process::Command::new("unzip")
             .arg(zipfile.display().to_string())
             .arg("-d")
@@ -140,7 +147,7 @@ impl ToolCache {
             .await?;
 
         if !output.exists() {
-            return Err(ActionsError::IoError(std::io::Error::new(
+            return Err(ToolCacheError::IoError(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
                 "Failed to extract zip file",
             )));

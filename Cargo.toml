@@ -44,10 +44,10 @@ default = ["log", "macros", "octocrab", "toolcache"]
 generate = ["ghactions-derive/generate"]
 
 # Toolcache features
-toolcache = ["ghactions-core/toolcache"]
-toolcache-all = ["toolcache", "toolcache-tarball", "toolcache-zip"]
-toolcache-tarball = ["toolcache", "ghactions-core/toolcache-tarball"]
-toolcache-zip = ["toolcache", "ghactions-core/toolcache-zip"]
+toolcache = ["dep:ghactions-toolcache"]
+toolcache-all = ["toolcache", "ghactions-toolcache/all"]
+toolcache-tarball = ["toolcache", "ghactions-toolcache/tarball"]
+toolcache-zip = ["toolcache", "ghactions-toolcache/zip"]
 
 # Logging
 log = ["ghactions-derive/log", "ghactions-core/log", "dep:log"]
@@ -55,11 +55,12 @@ dotenvy = ["ghactions-derive/dotenvy"]
 # Macros
 macros = ["ghactions-core/macros"]
 # Octocrab
-octocrab = ["ghactions-core/octocrab"]
+octocrab = ["ghactions-core/octocrab", "ghactions-toolcache/api"]
 
 [dependencies]
 ghactions-core = { version = "^0.17", path = "ghactions-core" }
 ghactions-derive = { version = "^0.17", path = "ghactions-derive" }
+ghactions-toolcache = { version = "^0.17", path = "ghactions-toolcache", optional = true }
 
 log = { version = "0.4", optional = true }
 

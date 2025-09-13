@@ -1,9 +1,7 @@
 //! # Tool from ToolCache
 
-use std::{fmt::Display, path::PathBuf};
-
 use glob::{MatchOptions, glob_with};
-use log::debug;
+use std::{fmt::Display, path::PathBuf};
 
 use super::ToolCacheArch;
 
@@ -68,17 +66,12 @@ impl Tool {
         tool_name: impl Into<String>,
         version: impl Into<String>,
         arch: impl Into<ToolCacheArch>,
-    ) -> Result<Vec<Tool>, crate::errors::ActionsError> {
+    ) -> Result<Vec<Tool>, crate::ToolCacheError> {
         let tool_name = tool_name.into();
         let version = version.into();
         let arch = arch.into();
 
-        let tool_path = Tool::tool_path(
-            toolcache_root,
-            tool_name.clone(),
-            version.clone(),
-            arch.clone(),
-        );
+        let tool_path = Tool::tool_path(toolcache_root, tool_name.clone(), version.clone(), arch);
         let tool_path_str = tool_path.to_str().unwrap();
 
         let mut results: Vec<Tool> = vec![];
@@ -96,7 +89,7 @@ impl Tool {
                 match Tool::try_from(path) {
                     Ok(tool) => results.push(tool),
                     Err(e) => {
-                        debug!("Failed to create Tool from path: {:?}", e);
+                        log::debug!("Failed to create Tool from path: {:?}", e);
                     }
                 };
             }
@@ -131,7 +124,7 @@ impl Tool {
 }
 
 impl TryFrom<PathBuf> for Tool {
-    type Error = crate::errors::ActionsError;
+    type Error = crate::ToolCacheError;
 
     fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
         let parts: Vec<&str> = value.iter().map(|p| p.to_str().unwrap()).collect();
@@ -139,7 +132,7 @@ impl TryFrom<PathBuf> for Tool {
         let arch = match parts.last() {
             Some(arch) => arch,
             None => {
-                return Err(crate::errors::ActionsError::ToolCacheError(
+                return Err(crate::ToolCacheError::GenericError(
                     "Invalid Tool Path".to_string(),
                 ));
             }
@@ -147,7 +140,7 @@ impl TryFrom<PathBuf> for Tool {
         let version = match parts.get(parts.len() - 2) {
             Some(version) => version,
             None => {
-                return Err(crate::errors::ActionsError::ToolCacheError(
+                return Err(crate::ToolCacheError::GenericError(
                     "Invalid Tool Path".to_string(),
                 ));
             }
@@ -155,7 +148,7 @@ impl TryFrom<PathBuf> for Tool {
         let name = match parts.get(parts.len() - 3) {
             Some(name) => name,
             None => {
-                return Err(crate::errors::ActionsError::ToolCacheError(
+                return Err(crate::ToolCacheError::GenericError(
                     "Invalid Tool Path".to_string(),
                 ));
             }

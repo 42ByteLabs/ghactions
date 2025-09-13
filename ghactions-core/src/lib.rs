@@ -1,21 +1,20 @@
 //! ghactions-core is a library that provides core functionality for GitHub Actions in Rust.
-#![allow(dead_code)]
-#![allow(unused_imports)]
+#![allow(dead_code, unused_imports)]
 #![deny(missing_docs)]
 
 #[cfg(feature = "log")]
 extern crate log;
 
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 pub mod actions;
 pub mod errors;
 #[cfg(feature = "log")]
 pub mod logging;
 pub mod repository;
-#[cfg(feature = "toolcache")]
-pub mod toolcache;
 
 pub use crate::actions::models::{ActionInput, ActionRuns, ActionYML};
 pub use crate::errors::ActionsError;
