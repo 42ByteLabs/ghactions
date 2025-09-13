@@ -31,8 +31,9 @@ log = ["dep:log"]
 [dependencies]
 glob = "^0.3"
 tokio = { version = "1.47", default-features = false, features = [
-    "fs",
     "macros",
+    "process",
+    "fs",
 ] }
 url = "^2.5"
 reqwest = "^0.12"
