@@ -100,14 +100,11 @@ impl ToolCacheBuilder {
     /// Build the ToolCache
     pub fn build(&self) -> ToolCache {
         let tool_cache = self.tool_cache.clone().unwrap_or_else(get_tool_cache_path);
-        let arch = self
-            .arch
-            .clone()
-            .unwrap_or_else(|| match std::env::consts::ARCH {
-                "x86_64" | "amd64" => ToolCacheArch::X64,
-                "aarch64" => ToolCacheArch::ARM64,
-                _ => ToolCacheArch::Any,
-            });
+        let arch = self.arch.unwrap_or(match std::env::consts::ARCH {
+            "x86_64" | "amd64" => ToolCacheArch::X64,
+            "aarch64" => ToolCacheArch::ARM64,
+            _ => ToolCacheArch::Any,
+        });
 
         let platform = self.platform.unwrap_or_else(ToolPlatform::from_current_os);
 
@@ -117,7 +114,7 @@ impl ToolCacheBuilder {
             platform,
             retry_count: self.retry_count.unwrap_or(RETRY_COUNT),
             #[cfg(feature = "download")]
-            client: self.client.clone().unwrap_or_else(reqwest::Client::new),
+            client: self.client.clone().unwrap_or_default(),
         }
     }
 }

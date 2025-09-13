@@ -71,12 +71,7 @@ impl Tool {
         let version = version.into();
         let arch = arch.into();
 
-        let tool_path = Tool::tool_path(
-            toolcache_root,
-            tool_name.clone(),
-            version.clone(),
-            arch.clone(),
-        );
+        let tool_path = Tool::tool_path(toolcache_root, tool_name.clone(), version.clone(), arch);
         let tool_path_str = tool_path.to_str().unwrap();
 
         let mut results: Vec<Tool> = vec![];

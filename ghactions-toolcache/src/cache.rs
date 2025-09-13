@@ -131,7 +131,7 @@ impl ToolCache {
         let version = version.into();
         let arch = arch.into();
 
-        Tool::find(self.get_tool_cache(), tool.clone(), &version, &arch)?
+        Tool::find(self.get_tool_cache(), tool.clone(), &version, arch)?
             .into_iter()
             .find(|t| t.name() == tool)
             .ok_or_else(|| crate::ToolCacheError::ToolNotFound {

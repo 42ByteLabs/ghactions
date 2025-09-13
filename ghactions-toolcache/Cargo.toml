@@ -30,7 +30,10 @@ log = ["dep:log"]
 
 [dependencies]
 glob = "^0.3"
-tokio = "1"
+tokio = { version = "1.47", default-features = false, features = [
+    "fs",
+    "macros",
+] }
 url = "^2.5"
 reqwest = "^0.12"
 thiserror = "^2.0"

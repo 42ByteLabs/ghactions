@@ -15,7 +15,7 @@ pub enum ToolCacheArch {
 
 impl From<&ToolCacheArch> for ToolCacheArch {
     fn from(arch: &ToolCacheArch) -> Self {
-        arch.clone()
+        *arch
     }
 }
 
