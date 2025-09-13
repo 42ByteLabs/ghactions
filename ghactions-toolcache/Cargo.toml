@@ -1,0 +1,20 @@
+[package]
+name = "ghactions-toolcache"
+version = "0.0.1"
+
+# version.workspace = true
+license.workspace = true
+description.workspace = true
+keywords.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+
+[package.metadata.release]
+shared-version = true
+tag-name = "v{{version}}"
+

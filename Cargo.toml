@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [".", "ghactions-core", "ghactions-derive"]
+members = [".", "ghactions-core", "ghactions-derive", "ghactions-toolcache"]
 
 [workspace.package]
 version = "0.17.0"
