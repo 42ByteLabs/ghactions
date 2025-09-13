@@ -58,9 +58,9 @@ macros = ["ghactions-core/macros"]
 octocrab = ["ghactions-core/octocrab", "ghactions-toolcache/api"]
 
 [dependencies]
-ghactions-core = { version = "^0.16", path = "ghactions-core" }
-ghactions-derive = { version = "^0.16", path = "ghactions-derive" }
-ghactions-toolcache = { version = "^0.16", path = "ghactions-toolcache", optional = true }
+ghactions-core = { version = "^0.17", path = "ghactions-core" }
+ghactions-derive = { version = "^0.17", path = "ghactions-derive" }
+ghactions-toolcache = { version = "^0.17", path = "ghactions-toolcache", optional = true }
 
 log = { version = "0.4", optional = true }
 
