@@ -629,7 +629,7 @@ dependencies = [
  "ghactions-toolcache",
  "http",
  "log",
- "octocrab",
+ "octocrab 0.47.0",
  "tokio",
 ]
 
@@ -646,7 +646,7 @@ dependencies = [
  "http",
  "indexmap",
  "log",
- "octocrab",
+ "octocrab 0.46.0",
  "reqwest",
  "serde",
  "serde_yaml",
@@ -681,7 +681,7 @@ dependencies = [
  "glob",
  "http",
  "log",
- "octocrab",
+ "octocrab 0.46.0",
  "reqwest",
  "tar",
  "thiserror",
@@ -1295,6 +1295,46 @@ name = "octocrab"
 version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1620cb765b304c2828fe3cc1c6510cad7354cbeb519561f415fd3b07aae0ef5"
+dependencies = [
+ "arc-swap",
+ "async-trait",
+ "base64",
+ "bytes",
+ "cfg-if",
+ "chrono",
+ "either",
+ "futures",
+ "futures-util",
+ "http",
+ "http-body",
+ "http-body-util",
+ "hyper",
+ "hyper-rustls",
+ "hyper-timeout",
+ "hyper-util",
+ "jsonwebtoken",
+ "once_cell",
+ "percent-encoding",
+ "pin-project",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
+ "serde_urlencoded",
+ "snafu",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing",
+ "url",
+ "web-time",
+]
+
+[[package]]
+name = "octocrab"
+version = "0.47.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0860f9250b6db66c5a4b46e00b381f063c58ad06a90f95f9ef701dd8679bb2c6"
 dependencies = [
  "arc-swap",
  "async-trait",
