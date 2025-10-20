@@ -30,7 +30,7 @@ log = ["dep:log"]
 
 [dependencies]
 glob = "^0.3"
-tokio = { version = "1.47", default-features = false, features = [
+tokio = { version = "1.48", default-features = false, features = [
     "macros",
     "process",
     "fs",
