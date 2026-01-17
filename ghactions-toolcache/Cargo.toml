@@ -30,13 +30,13 @@ log = ["dep:log"]
 
 [dependencies]
 glob = "^0.3"
-tokio = { version = "1.48", default-features = false, features = [
+tokio = { version = "1.49", default-features = false, features = [
     "macros",
     "process",
     "fs",
 ] }
 url = "^2.5"
-reqwest = "^0.12"
+reqwest = "^0.13"
 thiserror = "^2.0"
 log = { version = "^0.4", optional = true }
 
@@ -44,7 +44,7 @@ log = { version = "^0.4", optional = true }
 flate2 = { version = "^1.1", optional = true }
 tar = { version = "^0.4", optional = true }
 # Zip
-zip = { version = "^7.0", optional = true }
+zip = { version = "^7.1", optional = true }
 
 # GitHub API
 octocrab = { version = "^0.49", optional = true }
