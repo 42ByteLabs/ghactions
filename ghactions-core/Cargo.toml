@@ -37,19 +37,19 @@ serde_yaml = "^0.9"
 glob = { version = "^0.3", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 url = { version = "^2.5", optional = true }
-reqwest = { version = "^0.12", optional = true }
+reqwest = { version = "^0.13", optional = true }
 
 # Tarball
 flate2 = { version = "^1.1", optional = true }
 tar = { version = "^0.4", optional = true }
 # Zip
-zip = { version = "^7.0", optional = true }
+zip = { version = "^7.1", optional = true }
 
 # Logging
 log = { version = "^0.4", optional = true }
 env_logger = { version = "^0.11", optional = true }
 # IndexMap
-indexmap = { version = "^2.12", features = ["serde"] }
+indexmap = { version = "^2.13", features = ["serde"] }
 # GitHub API
 octocrab = { version = "^0.49", optional = true }
 http = { version = "^1.4", optional = true }
