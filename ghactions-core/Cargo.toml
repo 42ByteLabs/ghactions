@@ -37,7 +37,7 @@ serde_yaml = "^0.9"
 glob = { version = "^0.3", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 url = { version = "^2.5", optional = true }
-reqwest = { version = "^0.12", optional = true }
+reqwest = { version = "^0.13", optional = true }
 
 # Tarball
 flate2 = { version = "^1.1", optional = true }
