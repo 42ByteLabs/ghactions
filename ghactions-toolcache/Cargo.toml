@@ -36,7 +36,7 @@ tokio = { version = "1.48", default-features = false, features = [
     "fs",
 ] }
 url = "^2.5"
-reqwest = "^0.12"
+reqwest = "^0.13"
 thiserror = "^2.0"
 log = { version = "^0.4", optional = true }
 
