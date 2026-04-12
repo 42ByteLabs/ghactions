@@ -839,9 +839,7 @@ dependencies = [
  "serde_yaml",
  "tar",
  "thiserror 2.0.18",
- "time",
  "tokio",
- "url",
  "zip",
 ]
 
@@ -873,7 +871,6 @@ dependencies = [
  "tar",
  "thiserror 2.0.18",
  "tokio",
- "url",
  "zip",
 ]
 
