@@ -40,7 +40,7 @@ shared-version = true
 tag-name = "v{{version}}"
 
 [features]
-default = ["log", "macros", "octocrab", "toolcache"]
+default = ["log", "macros", "octocrab", "toolcache", "rustls-aws-lc"]
 generate = ["ghactions-derive/generate"]
 
 # Toolcache features
@@ -56,6 +56,10 @@ dotenvy = ["ghactions-derive/dotenvy"]
 macros = ["ghactions-core/macros"]
 # Octocrab
 octocrab = ["ghactions-core/octocrab", "ghactions-toolcache/api"]
+# Octocrab TLS
+rustls-aws-lc = ["octocrab", "ghactions-core/rustls-aws-lc", "ghactions-toolcache/rustls-aws-lc"]
+rustls-ring = ["octocrab", "ghactions-core/rustls-ring", "ghactions-toolcache/rustls-ring"]
+native-tls = ["octocrab", "ghactions-core/native-tls", "ghactions-toolcache/native-tls"]
 
 [dependencies]
 ghactions-core = { version = "^0.19", path = "ghactions-core" }

@@ -20,7 +20,13 @@ tag-name = "v{{version}}"
 default = ["log", "macros"]
 log = ["dep:log", "dep:env_logger"]
 macros = []
+# Octocrab
 octocrab = ["dep:octocrab", "dep:http", "dep:tokio"]
+
+# TLS features for Octocrab
+rustls-aws-lc = ["octocrab", "octocrab/rustls-aws-lc-rs"]
+rustls-ring = ["octocrab", "octocrab/rustls-ring"]
+native-tls = ["octocrab", "octocrab/opentls"]
 
 # Toolcache features
 toolcache = ["dep:ghactions-toolcache"]
