@@ -5,7 +5,7 @@ version = "0.19.0"
 edition = "2021"
 
 [dependencies]
-ghactions = {version = "^0.9", features = ["generate", "octocrab"]}
+ghactions = {version = "^0.19", features = ["generate", "octocrab"]}
 anyhow = "1"
 log = "0.4"
 tokio = { version = "^1.38", features = [ "full" ] }
