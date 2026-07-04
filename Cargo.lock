@@ -836,7 +836,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions"
-version = "0.19.0"
+version = "0.20.0"
 dependencies = [
  "anyhow",
  "dotenvy",
@@ -852,7 +852,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions-core"
-version = "0.19.0"
+version = "0.20.0"
 dependencies = [
  "anyhow",
  "env_logger",
@@ -877,7 +877,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions-derive"
-version = "0.19.0"
+version = "0.20.0"
 dependencies = [
  "dotenvy",
  "ghactions",
@@ -890,7 +890,7 @@ dependencies = [
 
 [[package]]
 name = "ghactions-toolcache"
-version = "0.19.0"
+version = "0.20.0"
 dependencies = [
  "anyhow",
  "flate2",
