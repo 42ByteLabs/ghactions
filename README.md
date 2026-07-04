@@ -219,6 +219,7 @@ At build time, the `action.yml` file will be generated with the following conten
 ### Using Octocrab
 
 Enabling the `octocrab` feature will allow you to use the [Octocrab][octocrab] library.
+The `octocrab` feature uses Octocrab's `rustls-ring` TLS provider by default.
 
 ```rust
 use ghactions::prelude::*;
@@ -260,4 +261,3 @@ Please refer to [MIT][license] for the full terms.
 [examples]: ./examples
 [octocrab]: https://crates.io/crates/octocrab
 [cargo-generate]: https://crates.io/crates/cargo-generate
-

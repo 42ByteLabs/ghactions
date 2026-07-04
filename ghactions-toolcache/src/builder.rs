@@ -25,6 +25,8 @@
 //! # }
 //! ```
 use std::path::PathBuf;
+#[cfg(feature = "download")]
+use std::sync::{Arc, OnceLock};
 
 use crate::{
     ToolCache, ToolCacheArch, ToolPlatform,
@@ -108,13 +110,22 @@ impl ToolCacheBuilder {
 
         let platform = self.platform.unwrap_or_else(ToolPlatform::from_current_os);
 
+        #[cfg(feature = "download")]
+        let client = {
+            let client = OnceLock::new();
+            if let Some(reqwest_client) = self.client.clone() {
+                let _ = client.set(reqwest_client);
+            }
+            Arc::new(client)
+        };
+
         ToolCache {
             tool_cache,
             arch,
             platform,
             retry_count: self.retry_count.unwrap_or(RETRY_COUNT),
             #[cfg(feature = "download")]
-            client: self.client.clone().unwrap_or_default(),
+            client,
         }
     }
 }
