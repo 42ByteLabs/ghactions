@@ -17,8 +17,8 @@ shared-version = true
 tag-name = "v{{version}}"
 
 [features]
-default = ["log"]
-all = ["tarball", "zip", "download", "log"]
+default = []
+all = ["tarball", "zip", "download"]
 
 tarball = ["dep:flate2", "dep:tar"]
 zip = ["dep:flate2", "dep:zip"]
@@ -26,7 +26,8 @@ zip = ["dep:flate2", "dep:zip"]
 download = ["api"]
 api = ["dep:octocrab", "dep:http", "octocrab/rustls-ring"]
 
-log = ["dep:log"]
+# Deprecated
+log = []
 
 [dependencies]
 glob = "^0.3"
@@ -43,7 +44,7 @@ reqwest = { version = "^0.13", default-features = false, features = [
     "system-proxy",
 ] }
 thiserror = "^2.0"
-log = { version = "^0.4", optional = true }
+log = "^0.4"
 
 # Tarball
 flate2 = { version = "^1.1", optional = true }
