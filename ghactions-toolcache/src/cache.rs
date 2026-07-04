@@ -1,6 +1,8 @@
 //! Tool Cache
 
 use std::path::PathBuf;
+#[cfg(feature = "download")]
+use std::sync::{Arc, OnceLock};
 
 use super::{Tool, ToolCacheArch, platform::ToolPlatform};
 use crate::ToolCacheError;
@@ -41,7 +43,7 @@ pub struct ToolCache {
 
     /// Client to use for downloads
     #[cfg(feature = "download")]
-    pub(crate) client: reqwest::Client,
+    pub(crate) client: Arc<OnceLock<reqwest::Client>>,
 }
 
 impl ToolCache {
@@ -222,7 +224,7 @@ impl Default for ToolCache {
             },
             platform: ToolPlatform::from_current_os(),
             #[cfg(feature = "download")]
-            client: reqwest::Client::new(),
+            client: Arc::new(OnceLock::new()),
         }
     }
 }

@@ -12,7 +12,7 @@ use crate::ToolCacheError;
 impl ToolCache {
     /// Get the tool cache client for downloads
     pub fn get_client(&self) -> &reqwest::Client {
-        &self.client
+        self.client.get_or_init(reqwest::Client::new)
     }
 
     /// Download an asset from a release
@@ -40,7 +40,7 @@ impl ToolCache {
             counter -= 1;
 
             let mut resp = self
-                .client
+                .get_client()
                 .get(url.clone())
                 .header(
                     http::header::ACCEPT,

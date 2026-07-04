@@ -106,4 +106,3 @@ required-features = ["dotenvy", "generate"]
 name = "toolcache"
 path = "./examples/toolcache.rs"
 required-features = ["toolcache"]
-
