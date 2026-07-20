@@ -53,7 +53,7 @@ tar = { version = "^0.4", optional = true }
 zip = { version = "^8.6", optional = true }
 
 # GitHub API
-octocrab = { version = "^0.53", optional = true }
+octocrab = { version = "^0.54", optional = true }
 http = { version = "^1.4", optional = true }
 
 [dev-dependencies]
