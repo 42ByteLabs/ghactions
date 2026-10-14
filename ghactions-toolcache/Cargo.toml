@@ -50,7 +50,7 @@ log = "^0.4"
 flate2 = { version = "^1.1", optional = true }
 tar = { version = "^0.4", optional = true }
 # Zip
-zip = { version = "^8.6", optional = true }
+zip = { version = "^9.0", optional = true }
 
 # GitHub API
 octocrab = { version = "^0.54", optional = true }
